@@ -11,7 +11,7 @@ Cone Detection
 
 		$ cone_detector -f path/to/image_folder
 
-    This will locate cones in all images in image_folder and create the following file structure in the        current working directory:
+    This will locate cones in all images in image_folder and output this information to the following file structure in the current working directory:
 
 	::
 
