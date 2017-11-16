@@ -1,5 +1,12 @@
-Cone Detection
---------------
+MDLSTM Cone Detection
+---------------------
+
+- this is the implementation of the paper
+
+
+
+Installing and Using
+--------------------
 
 1. install tensorflow https://www.tensorflow.org/install/
 
