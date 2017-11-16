@@ -33,13 +33,14 @@ class Data:
         images_by_size = {}
 
         for image in os.listdir(self.location):
-            image_path = os.path.join(self.location, image)
-            im = self.grayscale_image(image)
-            size = min(im.shape)
-            if size not in images_by_size.keys():
-                images_by_size[size] = [image]
-            else:
-                images_by_size[size].append(image)
+            if 'tif' in image.split('.')[-1]:
+                image_path = os.path.join(self.location, image)
+                im = self.grayscale_image(image)
+                size = min(im.shape)
+                if size not in images_by_size.keys():
+                    images_by_size[size] = [image]
+                else:
+                    images_by_size[size].append(image)
 
         return images_by_size
 
