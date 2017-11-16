@@ -5,7 +5,7 @@ def readme():
     with open('README.rst') as f:
         return f.read()
 
-setup(name='cone_detector_gpu',
+setup(name='cone_detector',
 		version='0.1',
 		description='Automatic cone detection software',
 		url='https://gitlab.com/rmapbda/ConeDetector',
