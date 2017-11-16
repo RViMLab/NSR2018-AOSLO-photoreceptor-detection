@@ -22,3 +22,12 @@ Cone Detection
 				cropped images showing estimated cone loactions
 			markers
 				locations as csv files
+
+Using this Software
+-------------------
+
+-CITE this paper
+
+-License
+
+-bibtex
