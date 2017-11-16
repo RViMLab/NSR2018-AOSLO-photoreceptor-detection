@@ -8,7 +8,7 @@ def readme():
 setup(name='cone_detector_gpu',
 		version='0.1',
 		description='Automatic cone detection software',
-		url='http://github.com/storborg/funniest',
+		url='https://gitlab.com/rmapbda/ConeDetector',
 		author='Benjamin Davidson',
 		author_email='benjamin.davidson.16@ucl.ac.ul',
 		license='MIT',
