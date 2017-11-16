@@ -3,12 +3,10 @@ Cone Detection
 
 To use install and then call
 
-cwd$ cone_detector -f path/to/image_folder
+$ cone_detector -f path/to/image_folder
 
-This will locate cones in all images in image_folder and
-output them as follows:
+This will locate cones in all images in image_folder and create the following file structure in the current working directory:
 ::
- cwd
 	datetime.now
 		images
 			cropped_images
