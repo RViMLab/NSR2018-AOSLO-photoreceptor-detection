@@ -1,5 +1,6 @@
-from applyNetwork import run
 from __future__ import print_function
+from applyNetwork import run
+
 import os
 try:
 	import tensorflow

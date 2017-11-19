@@ -13,6 +13,7 @@ setup(name='cone_detector',
 		author_email='benjamin.davidson.16@ucl.ac.ul',
 		license='MIT',
 		packages=['cone_detector'],
+		package_data={'cone_detector': ['ckpts/*']},
 		install_requires=[
 			'matplotlib',
 			'numpy',

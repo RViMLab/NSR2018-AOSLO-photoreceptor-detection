@@ -9,7 +9,8 @@ from regional_max import get_centers
 from model import CONV_MD_32U2L
 
 def run(dataFolder):
-    model_location = os.path.join('ckpts', 'model')
+    direc = os.path.dirname(os.path.realpath(__file__))
+    model_location = os.path.join(direc, 'ckpts', 'model')
     model = CONV_MD_32U2L
     data = Data(dataFolder)
     
