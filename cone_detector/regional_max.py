@@ -76,7 +76,7 @@ def get_centers(prob_map):
     joint = [4., 0.29795918]
     healthy = [3.78947368, 0.21632653]
     estimated_centroids = get_centroids(prob_map, joint[0], 0., joint[1])
-    if len(estimated_centroids) > 40:
+    if len(estimated_centroids) > 0.0011 * prob_map.shape[0]*prob_map.shape[1]:
         estimated_centroids = get_centroids(prob_map, healthy[0], 0., healthy[1])
     estimated_centroids = remove_from_border(estimated_centroids, prob_map.shape[0], prob_map.shape[1])
     return estimated_centroids
