@@ -1,10 +1,6 @@
 from setuptools import setup
 
 
-def readme():
-    with open('README.rst') as f:
-        return f.read()
-
 setup(name='cone_detector',
 		version='0.1',
 		description='Automatic cone detection software',
@@ -26,7 +22,6 @@ setup(name='cone_detector',
 		entry_points = {
 			'console_scripts': ['cone_detector=cone_detector.command_line:main'],
 		},
-		long_description=readme(),
 		keywords='AOSLO photoreceptor localisation',
 		include_package_data=True,
 		zip_safe=False)
