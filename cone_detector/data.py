@@ -81,7 +81,7 @@ class Data:
             plt.imshow(image, cmap='gray')
             xx=np.array(map(lambda e: float(e[1]), centreList))
             yy=np.array(map(lambda e: float(e[0]), centreList))
-            plt.scatter(x=xx, y=yy, c='white', s=50, marker='^')
+            plt.scatter(x=xx, y=yy, c='white', s=10, marker='+')
             plt.axis('off')
             plt.tight_layout()
             plt.savefig(os.path.join(figure_folder, im_name + '.png'), transparent=True)
