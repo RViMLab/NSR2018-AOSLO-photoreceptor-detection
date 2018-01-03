@@ -17,7 +17,7 @@ setup(name='cone_detector',
 			'scikit-image',
 			'Pillow',
 			'argparse',
-			'tensorflow'
+			'tensorflow',
       	],
 		entry_points = {
 			'console_scripts': ['cone_detector=cone_detector.command_line:main'],
