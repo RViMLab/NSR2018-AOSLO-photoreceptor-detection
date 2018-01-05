@@ -62,13 +62,10 @@ class Data:
 
         def centreToCSV(centers, image_name):
             with open(os.path.join(position_folder, image_name+'.csv'), 'wb') as csvfile:
-                fieldnames = ['row', 'col']
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
+                writer = csv.writer(csvfile)
                 center = dict()
                 for row, col in centers:
-                    center['row'] = row
-                    center['col'] = col
+                    center = [col, row]
                     writer.writerow(center)
 
         number_figures = 10
