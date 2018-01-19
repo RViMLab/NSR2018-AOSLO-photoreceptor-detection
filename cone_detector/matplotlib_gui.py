@@ -120,7 +120,12 @@ class Annotator:
         original_output_dict['centres'] = self.network_centroids
         self.outputs_after_annotation.append(original_output_dict)
 
-        with open('annotationState.pickle', 'wb') as handle:
+        if os.name == 'nt':
+            temp_dir = 'c:\\temp'
+        else:
+            temp_dir = '/tmp'
+        filename = os.path.join(temp_dir, 'annotationState.pickle')
+        with open(filename, 'wb') as handle:
             state = {'currentImageId':self.current_image_id, 'outputsAfterAnnotation':self.outputs_after_annotation}
             pickle.dump(state, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

@@ -26,8 +26,11 @@ def main(data_folder):
     Annotator(outputs)
 
     # use corrected
-    current_directory = os.path.dirname(os.path.realpath(__file__))
-    filename = os.path.join(current_directory, 'annotationState.pickle')
+    if os.name == 'nt':
+        temp_dir = 'c:\\temp'
+    else:
+        temp_dir = '/tmp'
+    filename = os.path.join(temp_dir, 'annotationState.pickle')
     with open(filename, 'rb') as handle:
             corrected = pickle.load(handle)
 
