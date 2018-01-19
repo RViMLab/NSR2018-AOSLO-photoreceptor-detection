@@ -26,10 +26,10 @@ def main(data_folder):
     Annotator(outputs)
 
     # use corrected
-    with open('annotationState.pickle', 'rb') as handle:
+    current_directory = os.path.dirname(os.path.realpath(__file__))
+    filename = os.path.join(current_directory, 'annotationState.pickle')
+    with open(filename, 'rb') as handle:
             corrected = pickle.load(handle)
 
     # create output
     build_output(corrected)
-
-main('testImage')

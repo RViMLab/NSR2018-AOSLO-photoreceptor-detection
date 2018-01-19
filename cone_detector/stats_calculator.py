@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.spatial import Voronoi, Delaunay
-import matplotlib.pyplot as plt
+from scipy.signal import convolve2d
 
 class StatsCalculator:
+
     def __init__(self, single_image_dict, um_per_pix):
         self.image_name = single_image_dict['name']
         self.image = single_image_dict['cropped']
@@ -73,7 +74,7 @@ class StatsCalculator:
 
     def intercell_distance(self, bounded_alg, bounded_hum):
 
-        def calcInter(arr):
+        def calcInter(arr, bnd):
             dt = Delaunay(arr)
             indPtr, indices = dt.vertex_neighbor_vertices
             max_neighbour = []
@@ -81,7 +82,7 @@ class StatsCalculator:
             mean_neighbour = []
 
             for vertex in range(indPtr.shape[0] - 1):
-                if not bounded_alg[vertex]:
+                if not bnd[vertex]:
                     continue
 
                 neighbours = indices[indPtr[vertex]:indPtr[vertex+1]]
@@ -104,16 +105,44 @@ class StatsCalculator:
             ic_mean = np.mean(np.array(mean_neighbour))
             return {'icMax':ic_max*self.um_per_pix, 'icMin':ic_min*self.um_per_pix, 'icMean':ic_mean*self.um_per_pix}
 
-        return {'alg':calcInter(self.networkCentres), 'hum':calcInter(self.humanCentres)}
+        return {'alg':calcInter(self.networkCentres, bounded_alg), 'hum':calcInter(self.humanCentres, bounded_hum)}
+
+    def density_map(self,):
+
+        def calculateDensest(arr):
+
+            mask = np.zeros([self.height, self.width])
+            for row in range(arr.shape[0]):
+                mask[int(arr[row,0]), int(arr[row, 1])] = 1
+
+            avg_positions = []
+            for size in [40, 45,]:
+                conv_filter = np.ones([size,size])
+                density = convolve2d(mask, conv_filter, mode='same')
+                
+                max_val = np.max(density)
+                posr, posc = np.nonzero(density==max_val)
+                avg_pos = np.array([posr.mean(), posc.mean()])
+
+                avg_positions.append(avg_pos)
+
+            avg_locations = np.stack(avg_positions)
+            avg_location = avg_locations.mean(axis=0)
+
+
+            return {'avgLocationRow':avg_location[0],'avgLocationCol':avg_location[1],}# 'allAvgs':avg_locations}
+
+        return {'alg':calculateDensest(self.networkCentres), 'hum':calculateDensest(self.humanCentres)}
 
     def get_image_stats(self,):
+        density_locations = self.density_map()
         mean_nn = self.mean_nearest_neighbour()
         voronoi = self.voronoi()
         bounded_alg = voronoi['alg']['bound']
         bounded_hum = voronoi['hum']['bound']
         ic_distance = self.intercell_distance(bounded_alg, bounded_hum)
 
-        stats_list = [mean_nn, voronoi, ic_distance]
+        stats_list = [mean_nn, voronoi, ic_distance, density_locations]
         final_stats = {'name':self.image_name}
 
         # human or alg centres
