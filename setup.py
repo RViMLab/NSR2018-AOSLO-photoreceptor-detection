@@ -20,7 +20,7 @@ setup(name='cone_detector',
 			'tensorflow',
       	],
 		entry_points = {
-			'console_scripts': ['cone_detector=cone_detector.command_line:main'],
+			'console_scripts': ['cone_detector=cone_detector.__main__:main'],
 		},
 		keywords='AOSLO photoreceptor localisation',
 		include_package_data=True,

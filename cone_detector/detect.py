@@ -1,7 +1,7 @@
 from __future__ import print_function
-from applyNetwork import run
-from matplotlib_gui import Annotator
-from output_builder import build_output
+from .applyNetwork import run
+from .matplotlib_gui import Annotator
+from .output_builder import build_output
 
 import os
 import pickle

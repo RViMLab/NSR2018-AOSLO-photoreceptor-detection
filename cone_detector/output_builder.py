@@ -2,7 +2,7 @@ import os
 import csv
 import datetime
 import matplotlib.pyplot as plt
-from stats_calculator import StatsCalculator
+from .stats_calculator import StatsCalculator
 
 from PIL import Image
 import numpy as np

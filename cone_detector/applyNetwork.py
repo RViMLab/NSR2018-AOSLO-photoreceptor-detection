@@ -2,9 +2,9 @@ import tensorflow as tf
 import numpy as np
 import os
 
-from data import Data
-from regional_max import get_centers
-from model import CONV_MD_32U2L
+from .data import Data
+from .regional_max import get_centers
+from .model import CONV_MD_32U2L
 
 def run(dataFolder):
     direc = os.path.dirname(os.path.realpath(__file__))

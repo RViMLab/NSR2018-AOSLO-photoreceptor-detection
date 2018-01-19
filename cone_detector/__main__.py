@@ -8,3 +8,6 @@ def main():
     parser.add_argument('-f', help='folder name in current directory')
     args = parser.parse_args()
     detect.main(args.f)
+
+if __name__ == '__main__':
+	main()

@@ -1,4 +1,4 @@
-from model_components import *
+from .model_components import *
 
 
 def CONV_MD_32U2L(image):
