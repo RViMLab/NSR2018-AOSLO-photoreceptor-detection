@@ -121,7 +121,7 @@ class Annotator:
         self.outputs_after_annotation.append(original_output_dict)
 
         if os.name == 'nt':
-            temp_dir = 'c:\\temp'
+            temp_dir = 'C:\\Windows\\Temp'
         else:
             temp_dir = '/tmp'
         filename = os.path.join(temp_dir, 'annotationState.pickle')

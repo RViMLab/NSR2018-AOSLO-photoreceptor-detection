@@ -27,7 +27,7 @@ def main(data_folder):
 
     # use corrected
     if os.name == 'nt':
-        temp_dir = 'c:\\temp'
+        temp_dir = 'C:\\Windows\\Temp'
     else:
         temp_dir = '/tmp'
     filename = os.path.join(temp_dir, 'annotationState.pickle')

@@ -8,9 +8,9 @@ from PIL import Image
 import numpy as np
 
 def build_output(correctedOutput):
-    print 'need to rerad from excell still'
+    print('need to rerad from excell still')
     cwd = os.getcwd()
-    now = datetime.datetime.now()
+    now = str(datetime.datetime.now()).replace(':', '')
     output_folder = os.path.join(cwd, str(now))
     alg_figure_folder = os.path.join(output_folder, 'algorithmFigures')
     corrected_figure_folder = os.path.join(output_folder, 'correctedFigures')
@@ -19,7 +19,7 @@ def build_output(correctedOutput):
     image_folder = os.path.join(output_folder, 'images')
 
     def centreToCSV(centers, image_name, fldr):
-        with open(os.path.join(fldr, image_name+'.csv'), 'wb') as csvfile:
+        with open(os.path.join(fldr, image_name+'.csv'), 'w') as csvfile:
             writer = csv.writer(csvfile)
             for row, col in centers:
                 center = [col, row]
@@ -28,7 +28,7 @@ def build_output(correctedOutput):
     def statsCSV(stats, image_name):
         filename = os.path.join(output_folder, 'stats.csv')
         file_exists = os.path.isfile(filename)
-        headers = stats.keys()
+        headers = list(stats.keys())
         for idx, field in enumerate(headers):
             if field=='name':
                 break
@@ -37,7 +37,7 @@ def build_output(correctedOutput):
         headers[0] = headers[idx]
         headers[idx] = temp
 
-        with open(filename, 'ab') as csvfile:
+        with open(filename, 'a') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=headers)
             if not file_exists:
                 writer.writeheader()
@@ -45,9 +45,9 @@ def build_output(correctedOutput):
 
     def numpy_to_list(arr):
         get_points = lambda x: (x[0,0], x[0,1])
-        list_centers = map(
+        list_centers = list(map(
             get_points,
-            np.split(arr, arr.shape[0], axis=0))
+            np.split(arr, arr.shape[0], axis=0)))
         return list_centers
 
     def arrayToGrayscale(array):
@@ -76,8 +76,8 @@ def build_output(correctedOutput):
         # algorithm figure
         algCentre = numpy_to_list(algCentre)
         plt.imshow(image, cmap='gray')
-        xx=np.array(map(lambda e: float(e[1]), algCentre))
-        yy=np.array(map(lambda e: float(e[0]), algCentre))
+        xx=np.array(list(map(lambda e: float(e[1]), algCentre)))
+        yy=np.array(list(map(lambda e: float(e[0]), algCentre)))
         plt.scatter(x=xx, y=yy, c='white', s=10, marker='+')
         plt.axis('off')
         plt.tight_layout()
@@ -87,8 +87,8 @@ def build_output(correctedOutput):
         # algorithm figure
         correctedCentre = numpy_to_list(correctedCentre)
         plt.imshow(image, cmap='gray')
-        xx=np.array(map(lambda e: float(e[1]), correctedCentre))
-        yy=np.array(map(lambda e: float(e[0]), correctedCentre))
+        xx=np.array(list(map(lambda e: float(e[1]), correctedCentre)))
+        yy=np.array(list(map(lambda e: float(e[0]), correctedCentre)))
         plt.scatter(x=xx, y=yy, c='white', s=10, marker='+')
         plt.axis('off')
         plt.tight_layout()

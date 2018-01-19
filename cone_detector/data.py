@@ -23,7 +23,7 @@ class Data:
     def grayscale_image(self, image_name):
         image_path = os.path.join(self.location, image_name)
         im = Image.open(image_path)
-        if im.split() > 1:
+        if len(im.split()) > 1:
             im = im.split()[0]
         im = np.array(im.getdata(), dtype = np.uint8).reshape(im.size[1], im.size[0])
         return im

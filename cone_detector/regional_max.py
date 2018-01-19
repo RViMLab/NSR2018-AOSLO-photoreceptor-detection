@@ -49,11 +49,11 @@ def expand_centroids(centroids, shape):
     mask = mask.astype(np.int16)
     r, c = mask_matrix.shape
     expanded = np.zeros([r,c])
-    for i in xrange(r):
-        for j in xrange(c):
+    for i in range(r):
+        for j in range(c):
             if mask_matrix[i,j] == 1:
-                for ii in xrange(2*radius+1):
-                    for jj in xrange(2*radius+1):
+                for ii in range(2*radius+1):
+                    for jj in range(2*radius+1):
                         try:
                             if expanded[i - radius + ii, j - radius + jj] != 1:
                                 expanded[i - radius + ii, j - radius + jj] = mask[ii, jj]
