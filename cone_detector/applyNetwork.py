@@ -31,6 +31,7 @@ def run(dataFolder):
 
                 # process all images where maximum sized cropped is size
                 for image_name in data.images_by_size[size]:
+                    output_dict = dict()
 
                     # get image, crop, center, make tensor
                     raw_image = data.grayscale_image(image_name)
@@ -42,5 +43,8 @@ def run(dataFolder):
                     im, prob_map = sess.run([image, prob_of_cone], feed_dict=feed_dict)
                     prob_map = np.reshape(prob_map, [size, size])
                     centres = get_centers(prob_map)
-                    outputs.append((image_name, cropped, centres))
-    data.build_output(outputs)
+                    output_dict['name'] = image_name
+                    output_dict['cropped'] = cropped
+                    output_dict['centres'] = centres
+                    outputs.append(output_dict)
+    return outputs

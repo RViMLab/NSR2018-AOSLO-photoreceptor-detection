@@ -1,5 +1,3 @@
-import matplotlib
-matplotlib.use('Agg')
 import os
 import numpy as np
 import sys
@@ -52,7 +50,7 @@ class Data:
         array = array * 255.
         return array.astype(np.uint8)
 
-    def build_output(self, imageCentreList): 
+    def build_output(self, networkOutput): 
         cwd = os.getcwd()
         now = datetime.now()
         output_folder = os.path.join(cwd, str(now))
@@ -75,7 +73,8 @@ class Data:
         os.makedirs(position_folder)
         os.makedirs(image_folder)
 
-        for im_name, image, centreList in imageCentreList:
+        for output_dict in networkOutput:
+            im_name, image, centreList = output_dict['name'], output_dict['cropped'], output_dict['centres']
             plt.imshow(image, cmap='gray')
             xx=np.array(map(lambda e: float(e[1]), centreList))
             yy=np.array(map(lambda e: float(e[0]), centreList))
