@@ -143,7 +143,8 @@ class StatsCalculator:
         ic_distance = self.intercell_distance(bounded_alg, bounded_hum)
 
         stats_list = [mean_nn, voronoi, ic_distance, density_locations]
-        final_stats = {'name':self.image_name}
+        # remove whitespace as otherwise messes csv
+        final_stats = {'name':self.image_name.replace(' ', '')}
 
         # human or alg centres
         for key in ['alg', 'hum']:

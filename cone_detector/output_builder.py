@@ -7,8 +7,9 @@ from .stats_calculator import StatsCalculator
 from PIL import Image
 import numpy as np
 
-def build_output(correctedOutput):
+def build_output(correctedOutput, data_folder):
     print('need to rerad from excell still')
+    print('if same patient different eye problems')
     cwd = os.getcwd()
     now = str(datetime.datetime.now()).replace(':', '')
     output_folder = os.path.join(cwd, str(now))
@@ -57,6 +58,25 @@ def build_output(correctedOutput):
         array = array * 255.
         return array.astype(np.uint8)
 
+    # building the um_per_pix dict
+
+    # find the csv file
+    files = os.listdir(data_folder)
+    csv_file_name = None
+    for f in files:
+        if '.csv' == f[-4:]:
+            csv_file_name = f
+            break
+
+    assert csv_file_name is not None
+
+    # extract name and conversion
+    um_per_pix_dict = {}
+    with open(os.path.join(data_folder, csv_file_name), 'r') as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            um_per_pix_dict[row[0]] = float(row[1])
+
     os.makedirs(output_folder)
     os.makedirs(alg_figure_folder)
     os.makedirs(corrected_figure_folder)
@@ -64,14 +84,13 @@ def build_output(correctedOutput):
     os.makedirs(alg_folder)
     os.makedirs(image_folder)
 
-
-
     for d in correctedOutput['outputsAfterAnnotation']:
         im_name, image, algCentre, correctedCentre = d['name'], d['cropped'], d['centres'], d['correctedCentres']
         
         # save image
         im = Image.fromarray(arrayToGrayscale(image))
         im.save(os.path.join(image_folder, im_name))
+        patient_name = '_'.join(im_name.split('_')[:2])
 
         # algorithm figure
         algCentre = numpy_to_list(algCentre)
@@ -100,7 +119,7 @@ def build_output(correctedOutput):
         centreToCSV(algCentre, im_name, alg_folder)
 
         # work out stats
-        statsCalculator = StatsCalculator(d, 0.7236)
+        statsCalculator = StatsCalculator(d, um_per_pix_dict[patient_name])
         stats = statsCalculator.get_image_stats()
         statsCSV(stats, im_name)
             

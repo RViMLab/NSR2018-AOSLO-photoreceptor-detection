@@ -30,9 +30,10 @@ def main(data_folder):
         temp_dir = 'C:\\Windows\\Temp'
     else:
         temp_dir = '/tmp'
+
     filename = os.path.join(temp_dir, 'annotationState.pickle')
     with open(filename, 'rb') as handle:
             corrected = pickle.load(handle)
 
     # create output
-    build_output(corrected)
+    build_output(corrected, data_folder)
