@@ -14,7 +14,12 @@ except ImportError:
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 def main(data_folder):
-
+    """
+        - applies network to all tifs in data_folder
+        - runs an interactive gui on these results for cleanup
+            this saves its output as a pickle file
+        - load pickle file and run metrics on it
+    """
     # if single string then use current directory
     if '/' or '\\' not in data_folder:
         data_folder = os.path.join(os.getcwd(), data_folder)

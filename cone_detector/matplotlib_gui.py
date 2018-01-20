@@ -10,6 +10,12 @@ import random
 
 class Annotator:
 
+    """
+        takes the output of network, and presents them through 
+        a gui for cleanup. Can add and remove points, and maintains 
+        seperate lists of original centres and estimated
+    """
+
     def __init__(self, outputs, restart=False):
 
         # todo in case crash
@@ -50,7 +56,6 @@ class Annotator:
         save_button = Button(bax, 'Save and next')
         save_button.on_clicked(self.save)
         
-
         # collect image data and present
         self.get_next_image(first_image=True)
         self.redraw()
@@ -70,6 +75,7 @@ class Annotator:
         self.redraw()
 
     def redraw(self,):
+        """updates figure"""
         self.ax1.cla()
         self.ax1.imshow(self.current_image, cmap='gray')
         self.ax1.axis('off')
@@ -81,9 +87,12 @@ class Annotator:
         self.ax1.figure.canvas.draw()
 
     def radio_callback(self, label):
+        """changes state of annottor to add or remove a point"""
         self.add_or_remove = self.AR_DICT[label]
 
     def onclick(self, event):
+        """clicking adds or removes a point depending on annotator state"""
+
         # if not in figure
         if event.inaxes!=self.ax1.axes: return
 
@@ -100,7 +109,6 @@ class Annotator:
 
             # if within 5 pixels of another point delete it
             # this accounts for not having to click on the exact center
-
             if dist[closest_row_index] < 5:
                 self.current_centroids = np.delete(self.current_centroids,[closest_row_index],axis=0)
             
@@ -112,24 +120,31 @@ class Annotator:
         # update canvas
         self.redraw()
 
-
     def save(self, event):
+        """Saves the annotations to a list, which is also saved as a pickle file"""
 
+        # saving old and new information to a list
         original_output_dict = self.raw_network_output[self.current_image_id]
         original_output_dict['correctedCentres'] = self.current_centroids
         original_output_dict['centres'] = self.network_centroids
         self.outputs_after_annotation.append(original_output_dict)
 
+        # saving to temporary folder on windows or linux as pickle
+        # we save the current image, with the raw data as well so we 
+        # can recover from a crash
         if os.name == 'nt':
             temp_dir = 'C:\\Windows\\Temp'
         else:
             temp_dir = '/tmp'
         filename = os.path.join(temp_dir, 'annotationState.pickle')
         with open(filename, 'wb') as handle:
-            state = {'currentImageId':self.current_image_id, 'outputsAfterAnnotation':self.outputs_after_annotation}
+            state = {
+                'currentImageId':self.current_image_id, 
+                'outputsAfterAnnotation':self.outputs_after_annotation, 
+                'rawData':self.raw_network_output}
             pickle.dump(state, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        # if we have done all images pass to output creator
+        # if we have done all images finish
         number_of_images = len(self.raw_network_output)
         if self.current_image_id<number_of_images-1:
             self.get_next_image()
