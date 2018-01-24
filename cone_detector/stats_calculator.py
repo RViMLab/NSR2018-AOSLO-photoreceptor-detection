@@ -1,3 +1,10 @@
+# Copyright (C) Benjamin Davidson, Inc - All Rights Reserved
+# Unauthorized copying of this file, without the authors written permission
+# via any medium is strictly prohibited
+# Proprietary and confidential
+# Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
+
+
 import numpy as np
 from scipy.spatial import Voronoi, Delaunay
 from scipy.signal import convolve2d
@@ -130,7 +137,7 @@ class StatsCalculator:
             avg_location = avg_locations.mean(axis=0)
 
 
-            return {'avgLocationRow':avg_location[0],'avgLocationCol':avg_location[1],}# 'allAvgs':avg_locations}
+            return {'avgLocationRow':avg_location[0],'avgLocationCol':avg_location[1],}
 
         return {'alg':calculateDensest(self.networkCentres), 'hum':calculateDensest(self.humanCentres)}
 

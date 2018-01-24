@@ -1,3 +1,9 @@
+# Copyright (C) Benjamin Davidson, Inc - All Rights Reserved
+# Unauthorized copying of this file, without the authors written permission
+# via any medium is strictly prohibited
+# Proprietary and confidential
+# Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
+
 import scipy.ndimage.filters as filters
 import numpy as np
 
