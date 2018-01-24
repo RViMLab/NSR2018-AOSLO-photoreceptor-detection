@@ -134,6 +134,9 @@ class StatsCalculator:
 
         return {'alg':calculateDensest(self.networkCentres), 'hum':calculateDensest(self.humanCentres)}
 
+    def count_cones(self,):
+        return {'alg':{'count':self.networkCentres.shape[0]}, 'hum':{'count':self.humanCentres.shape[0]}}
+
     def get_image_stats(self,):
         density_locations = self.density_map()
         mean_nn = self.mean_nearest_neighbour()
@@ -141,9 +144,12 @@ class StatsCalculator:
         bounded_alg = voronoi['alg']['bound']
         bounded_hum = voronoi['hum']['bound']
         ic_distance = self.intercell_distance(bounded_alg, bounded_hum)
+        counts = self.count_cones()
 
-        stats_list = [mean_nn, voronoi, ic_distance, density_locations]
+        stats_list = [mean_nn, voronoi, ic_distance, density_locations, counts]
         # remove whitespace as otherwise messes csv
+        if ' ' in self.image_name:
+            print('Warning\n Filename contains spaces: %s\n stripping spaces in csv' %(self.image_name))
         final_stats = {'name':self.image_name.replace(' ', '')}
 
         # human or alg centres

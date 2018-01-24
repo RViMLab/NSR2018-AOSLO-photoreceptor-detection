@@ -8,8 +8,6 @@ from PIL import Image
 import numpy as np
 
 def build_output(correctedOutput, data_folder):
-    print('need to rerad from excell still')
-    print('if same patient different eye problems')
     cwd = os.getcwd()
     now = str(datetime.datetime.now()).replace(':', '')
     output_folder = os.path.join(cwd, str(now))
@@ -20,7 +18,7 @@ def build_output(correctedOutput, data_folder):
     image_folder = os.path.join(output_folder, 'images')
 
     def centreToCSV(centers, image_name, fldr):
-        with open(os.path.join(fldr, image_name+'.csv'), 'w') as csvfile:
+        with open(os.path.join(fldr, image_name+'.csv'), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             for row, col in centers:
                 center = [col, row]
@@ -59,7 +57,6 @@ def build_output(correctedOutput, data_folder):
         return array.astype(np.uint8)
 
     # building the um_per_pix dict
-
     # find the csv file
     files = os.listdir(data_folder)
     csv_file_name = None

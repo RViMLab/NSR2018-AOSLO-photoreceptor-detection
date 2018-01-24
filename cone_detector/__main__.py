@@ -1,4 +1,4 @@
-from . import detect
+from . import cone_detector
 import argparse
 	
 
@@ -7,7 +7,7 @@ def main():
     parser = argparse.ArgumentParser(prog='cone_detector')
     parser.add_argument('-f', help='folder name in current directory')
     args = parser.parse_args()
-    detect.main(args.f)
+    cone_detector.main(args.f)
 
 if __name__ == '__main__':
 	main()
