@@ -7,6 +7,7 @@
 
 import numpy as np
 from scipy.spatial import Voronoi, Delaunay
+from scipy.spatial.qhull import QhullError
 from scipy.signal import convolve2d
 
 class StatsCalculator:
@@ -22,6 +23,8 @@ class StatsCalculator:
     def mean_nearest_neighbour(self,):
 
         def meanNNDist(arr):
+            if arr.shape[0]<=1:
+                return {'meanNN':'notEnoughPoints'}
             difference = arr[None, :, :] - arr[:, None, :]
             distanceSqrd = (difference*difference).sum(axis=2)
             distance = np.sqrt(distanceSqrd)
@@ -50,7 +53,16 @@ class StatsCalculator:
 
         def calcVoronoi(arr):
             bounded = np.zeros(arr.shape[0], dtype=np.bool)
-            vor = Voronoi(arr)
+            try:
+                vor = Voronoi(arr)
+            except QhullError:
+                return {
+                    'bound':'notEnoughPoints', 
+                    'vorVolume':'notEnoughPoints', 
+                    'vorSides':'notEnoughPoints', 
+                    'vorSix':'notEnoughPoints', 
+                    'vorDensity':'notEnoughPoints'}
+
             point_region = vor.point_region
             number_bounded = 0.
             number_six_sided = 0.
@@ -82,7 +94,11 @@ class StatsCalculator:
     def intercell_distance(self, bounded_alg, bounded_hum):
 
         def calcInter(arr, bnd):
-            dt = Delaunay(arr)
+            try:
+                dt = Delaunay(arr)
+            except QhullError:
+                return {'icMax':'notEnoughPoints', 'icMin':'notEnoughPoints', 'icMean':'notEnoughPoints'}
+
             indPtr, indices = dt.vertex_neighbor_vertices
             max_neighbour = []
             min_neighbour = []
