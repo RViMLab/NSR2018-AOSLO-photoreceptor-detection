@@ -10,7 +10,7 @@ import os
 
 from .data import Data
 from .regional_max import get_centers
-from .model import CONV_MD_32U2L
+from .model import DICE_CONV_MD_32U3L_tanh
 
 def run(dataFolder):
     """
@@ -24,7 +24,7 @@ def run(dataFolder):
     # parameters
     direc = os.path.dirname(os.path.realpath(__file__))
     model_location = os.path.join(direc, 'ckpts', 'model')
-    model = CONV_MD_32U2L
+    model = DICE_CONV_MD_32U3L_tanh
 
     # load the data and prepare output list
     data = Data(dataFolder)

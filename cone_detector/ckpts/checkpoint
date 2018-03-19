@@ -1,2 +1,2 @@
-model_checkpoint_path: "/home/bdavidson/Desktop/TensorflowModels/CONV_MD_32U2L_OUT/2017-11-02 17:15:21.085973/ckpts/model"
-all_model_checkpoint_paths: "/home/bdavidson/Desktop/TensorflowModels/CONV_MD_32U2L_OUT/2017-11-02 17:15:21.085973/ckpts/model"
+model_checkpoint_path: "/home/ben/Desktop/DICEDICE_CONV_MD_32U2L_tanh/2018-03-19 14:30:10.005205/ckpts/model"
+all_model_checkpoint_paths: "/home/ben/Desktop/DICEDICE_CONV_MD_32U2L_tanh/2018-03-19 14:30:10.005205/ckpts/model"

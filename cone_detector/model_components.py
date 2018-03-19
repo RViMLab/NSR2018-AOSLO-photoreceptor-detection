@@ -66,77 +66,40 @@ def output(image, labels, optimize, loss, out, reshaped_labels):
         prob_of_cell = probs[:,1]
         return image, labels, prob_of_cell, correct_prediction
 
-def get_loss(out, labels, weight=True):
+def get_dice_loss(out, labels, weight=True):
     """
-        Calculate cross entropy given scores, and true classifcation. 
-        if weight:
-            weight this loss by counting ratio of cone
-            to background where
+        use a balanced loss with
 
-                (1-ratio)*lossTerm(pixel_belongin_to_cone) + (ratio)*lossTerm(pixel_background)
+        (1-ratio)*lossTerm(pixel_belongin_to_cell) + (ratio)*lossTerm(pixel_background)
 
-            this will penalise incorrect cones more than incorrect background (if ratio < 0.5)
-            and as such we get some class balancing. 
-        else:
-            use unweighted
-
-        
-
-        
+        this will penalise incorrect cells more than incorrect background (if ratio < 0.5)
+        and as such we get some class balancing. If we use the original ratio withou
+        thresholding the network is too keen to predict cells at any cost as this ratio
+        can be 0.
 
     """
     _, height, width, inp_size = labels.get_shape().as_list()
     batch_size = tf.shape(labels)[0]
-    # reshape labels so we have 2D also  batch x height * width * 2
+    # reshape labels so we have 2D also  batch x height * width x 2
     reshaped_labels = tf.reshape(labels, [-1, height*width, inp_size])
 
-    # if we dont weight then just return normal cross entropy
-    # otherwise need to count the number of cones in each image
-    # to know ratio in each image
-    if not weight:
-        reshaped_labels = tf.reshape(reshaped_labels, [-1, 2])
-        #for training etc
-        loss = tf.reduce_mean(
-                tf.nn.softmax_cross_entropy_with_logits(
-                    labels = reshaped_labels, 
-                    logits = out
-                )
-            )
-        return loss, reshaped_labels
-        
-    else:
-        # how many cones in each image in the batch
-        # ratio comes out at (b,1) with the second
-        # dimension being number of cones
-        ratio = tf.reduce_sum(labels[:,:,:,1], axis=2)
-        ratio = tf.reduce_sum(ratio, axis=1) / np.float32(height*width)
-    
-    # multiply every background pixel by ratio
-    weights_0 = tf.multiply(ratio[:,None], reshaped_labels[:,:,0])
-    # multiply every cone pixel by 1-ratio
-    weights_1 = tf.multiply((1.-ratio)[:,None], reshaped_labels[:,:,1])
+    preds = tf.nn.softmax(logits=out)
+    reshaped_preds = tf.reshape(preds, [-1, height*width, inp_size])
 
-    # creates per pixel weight map and then unravels
-    # it so we have 
-    #   weights_per_label.shape = (x)
-    #   reshaped_labels.shape = (x,2)
-    weights_per_label = weights_0 + weights_1
-    weights_per_label = tf.reshape(weights_per_label, [-1, 1])
-    weights_per_label = tf.squeeze(weights_per_label)
-    reshaped_labels = tf.reshape(reshaped_labels, [-1, 2])
+    multed = tf.reduce_sum(reshaped_labels*reshaped_preds, axis=1)
+    summed = tf.reduce_sum(reshaped_labels + reshaped_preds, axis=1)
 
-    # multiply by weights and calculate mean
-    loss = tf.reduce_mean(
-            tf.multiply(
-                weights_per_label,
-                tf.nn.softmax_cross_entropy_with_logits(
-                    labels = reshaped_labels, 
-                    logits = out
-                )
-            )
-        )
+    r0 = tf.reduce_sum(reshaped_labels[:,:,0], axis=1)
+    r1 = np.float32(height*width) - r0
+    w0 = 1./(r0*r0 + 1.) if weight else 1.
+    w1 = 1./(r1*r1 + 1.) if weight else 1.
 
-    return loss, reshaped_labels
+    numerators = w0*multed[:,0] + w1*multed[:,1]
+    denom = w0*summed[:,0] + w1*summed[:,1]
+
+    dices = 1. - 2.*numerators/denom
+    loss = tf.reduce_mean(dices)
+    return loss, tf.reshape(reshaped_labels, [-1, 2])
 
 def input_labels(height, width):
     """Returns two placeholders for image, and label"""

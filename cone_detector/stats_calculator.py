@@ -185,7 +185,8 @@ class StatsCalculator:
                     if related_stat_key=='bound':
                         continue
                     final_stats[key + '_' + related_stat_key] = specific[related_stat_key]
-
+        final_stats['cropped_size_h'] = self.image.shape[0] 
+        final_stats['cropped_size_w'] = self.image.shape[1] 
         return final_stats
 
 

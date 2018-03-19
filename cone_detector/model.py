@@ -6,7 +6,7 @@
 
 from .model_components import *
 
-def CONV_MD_32U2L(image):
+def DICE_CONV_MD_32U3L_tanh(image):
 	"""
 		Builds the graph for the best model in the paper
 		M-C-M
@@ -28,14 +28,20 @@ def CONV_MD_32U2L(image):
 	_, height, width, channels = image.get_shape().as_list()
 	units = 32
 
-	# MDLSTM layer
-	with tf.variable_scope('MD_0'):
-		MD = MD_parallel(image, units)
-		MD = tf.transpose(MD, [0,1,2,4,3])
-		MD = tf.reshape(MD, [-1, height, width, 4*units])
 	# Conv layer
 	with tf.variable_scope('conv_0'):
+		conv = conv_layer(image)
+
+	# MDLSTM layer
+	with tf.variable_scope('MD_0'):
+		MD = MD_parallel(conv, units)
+		MD = tf.transpose(MD, [0,1,2,4,3])
+		MD = tf.reshape(MD, [-1, height, width, 4*units])
+
+	# Conv layer
+	with tf.variable_scope('conv_1'):
 		conv = conv_layer(MD)
+
 	# MDLSTM layer
 	with tf.variable_scope('MD_1'):
 		MD = MD_parallel(conv, units)

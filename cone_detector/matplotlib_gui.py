@@ -76,7 +76,10 @@ class Annotator:
         # get relavent data from the current output dict
         self.current_image_name = im_name
         self.current_image = image
-        self.current_centroids = np.stack(centreList)
+        if centreList:
+            self.current_centroids = np.stack(centreList)
+        else:
+            self.current_centroids = np.empty(shape=[0, 2])
         self.network_centroids = self.current_centroids
         self.redraw()
 
@@ -110,13 +113,14 @@ class Annotator:
             diff = self.current_centroids - point[None, :]
             diff *= diff
             dist = np.sum(diff, axis=1)
-            closest_row_index = np.argmin(dist, axis=0)
-            closest_point = self.current_centroids[closest_row_index]
+            if self.current_centroids.shape[0] > 0:
+                closest_row_index = np.argmin(dist, axis=0)
+                closest_point = self.current_centroids[closest_row_index]
 
-            # if within 5 pixels of another point delete it
-            # this accounts for not having to click on the exact center
-            if dist[closest_row_index] < 5:
-                self.current_centroids = np.delete(self.current_centroids,[closest_row_index],axis=0)
+                # if within 5 pixels of another point delete it
+                # this accounts for not having to click on the exact center
+                if dist[closest_row_index] < 5:
+                    self.current_centroids = np.delete(self.current_centroids,[closest_row_index],axis=0)
             
         # add point
         elif self.add_or_remove==self.ADD:
