@@ -36,7 +36,7 @@ class Annotator:
         self.current_image_id = 0
 
         # setup the window
-        self.fig = plt.figure()
+        self.fig = plt.figure('Cone Detector')
         ax1 = self.fig.add_subplot(1, 1, 1)
         self.ax1 = ax1
 

@@ -78,6 +78,7 @@ def build_output(correctedOutput, data_folder):
     with open(os.path.join(data_folder, csv_file_name), 'r') as csv_file:
         reader = csv.reader(csv_file)
         for row in reader:
+            row = [x for x in row if not x=='']
             um_per_pix_dict[row[0]] = float(row[1])
 
     os.makedirs(output_folder)
@@ -100,7 +101,7 @@ def build_output(correctedOutput, data_folder):
         plt.imshow(image, cmap='gray')
         xx=np.array(list(map(lambda e: float(e[1]), algCentre)))
         yy=np.array(list(map(lambda e: float(e[0]), algCentre)))
-        plt.scatter(x=xx, y=yy, c='white', s=10, marker='+')
+        plt.scatter(x=xx, y=yy, c='white', s=20)
         plt.axis('off')
         plt.tight_layout()
         plt.savefig(os.path.join(alg_figure_folder, im_name + '.png'), transparent=True)
@@ -111,7 +112,7 @@ def build_output(correctedOutput, data_folder):
         plt.imshow(image, cmap='gray')
         xx=np.array(list(map(lambda e: float(e[1]), correctedCentre)))
         yy=np.array(list(map(lambda e: float(e[0]), correctedCentre)))
-        plt.scatter(x=xx, y=yy, c='white', s=10, marker='+')
+        plt.scatter(x=xx, y=yy, c='white', s=20)
         plt.axis('off')
         plt.tight_layout()
         plt.savefig(os.path.join(corrected_figure_folder, im_name + '.png'), transparent=True)

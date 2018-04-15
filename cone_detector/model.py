@@ -6,7 +6,7 @@
 
 from .model_components import *
 
-def DICE_CONV_MD_32U3L_tanh(image):
+def DICE_CONV_MD_32U2L_tanh(image):
 	"""
 		Builds the graph for the best model in the paper
 		M-C-M

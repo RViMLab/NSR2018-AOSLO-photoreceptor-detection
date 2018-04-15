@@ -79,9 +79,9 @@ def get_centroids(prob_map, sigma, h, thresh):
     return centroids
 
 def get_centers(prob_map):
-    joint = [1.89473684, 0.67346939]
-    healthy = [1.89473684, 0.51020408]
-    stgd = [0.84210526, 0.98367347]
+    joint = [1.05263158, 0.88571429]
+    healthy = [1.05263158, 0.88571429]
+    stgd = [1.68421053, 0.98367347]
     estimated_centroids = get_centroids(prob_map, joint[0], 0., joint[1])
     if len(estimated_centroids) > 0.0011 * prob_map.shape[0]*prob_map.shape[1]:
         estimated_centroids = get_centroids(prob_map, healthy[0], 0., healthy[1])
