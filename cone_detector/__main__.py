@@ -4,9 +4,10 @@
 # Proprietary and confidential
 # Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 
-from . import cone_detector
 import argparse
-	
+
+from . import cone_detector
+
 
 def main():
     """command line entry to detect"""
@@ -15,5 +16,6 @@ def main():
     args = parser.parse_args()
     cone_detector.main(args.f)
 
+
 if __name__ == '__main__':
-	main()
+    main()

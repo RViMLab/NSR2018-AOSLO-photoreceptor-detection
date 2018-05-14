@@ -4,11 +4,10 @@
 # Proprietary and confidential
 # Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 
+import numpy as np
 import tensorflow as tf
 from tensorflow import TensorArray
-import numpy as np
-import os
-import random
+
 
 def output(image, labels, optimize, loss, out, reshaped_labels):
     """
@@ -63,8 +62,9 @@ def output(image, labels, optimize, loss, out, reshaped_labels):
         # probs is (b,s,s,1) and each value of probs
         # is the probability that the corresponding
         # pixel belongs to a cone
-        prob_of_cell = probs[:,1]
+        prob_of_cell = probs[:, 1]
         return image, labels, prob_of_cell, correct_prediction
+
 
 def get_dice_loss(out, labels, weight=True):
     """
@@ -81,30 +81,31 @@ def get_dice_loss(out, labels, weight=True):
     _, height, width, inp_size = labels.get_shape().as_list()
     batch_size = tf.shape(labels)[0]
     # reshape labels so we have 2D also  batch x height * width x 2
-    reshaped_labels = tf.reshape(labels, [-1, height*width, inp_size])
+    reshaped_labels = tf.reshape(labels, [-1, height * width, inp_size])
 
     preds = tf.nn.softmax(logits=out)
-    reshaped_preds = tf.reshape(preds, [-1, height*width, inp_size])
+    reshaped_preds = tf.reshape(preds, [-1, height * width, inp_size])
 
-    multed = tf.reduce_sum(reshaped_labels*reshaped_preds, axis=1)
+    multed = tf.reduce_sum(reshaped_labels * reshaped_preds, axis=1)
     summed = tf.reduce_sum(reshaped_labels + reshaped_preds, axis=1)
 
-    r0 = tf.reduce_sum(reshaped_labels[:,:,0], axis=1)
-    r1 = np.float32(height*width) - r0
-    w0 = 1./(r0*r0 + 1.) if weight else 1.
-    w1 = 1./(r1*r1 + 1.) if weight else 1.
+    r0 = tf.reduce_sum(reshaped_labels[:, :, 0], axis=1)
+    r1 = np.float32(height * width) - r0
+    w0 = 1. / (r0 * r0 + 1.) if weight else 1.
+    w1 = 1. / (r1 * r1 + 1.) if weight else 1.
 
-    numerators = w0*multed[:,0] + w1*multed[:,1]
-    denom = w0*summed[:,0] + w1*summed[:,1]
+    numerators = w0 * multed[:, 0] + w1 * multed[:, 1]
+    denom = w0 * summed[:, 0] + w1 * summed[:, 1]
 
-    dices = 1. - 2.*numerators/denom
+    dices = 1. - 2. * numerators / denom
     loss = tf.reduce_mean(dices)
     return loss, tf.reshape(reshaped_labels, [-1, 2])
 
+
 def input_labels(height, width):
     """Returns two placeholders for image, and label"""
-    images = tf.placeholder(dtype = tf.float32, shape = [None, height, width, 1])
-    labels = tf.placeholder(dtype = tf.float32, shape = [None, height, width, 2])
+    images = tf.placeholder(dtype=tf.float32, shape=[None, height, width, 1])
+    labels = tf.placeholder(dtype=tf.float32, shape=[None, height, width, 2])
 
     return images, labels
 
@@ -130,19 +131,19 @@ def conv_layer(inp):
     output_channels = 1
     padding = 'SAME'
     weights = tf.get_variable(
-        'conv_weights', 
-        initializer = tf.random_uniform(
-            [filter_size, filter_size, channels, output_channels], 
-            -initial_range, 
+        'conv_weights',
+        initializer=tf.random_uniform(
+            [filter_size, filter_size, channels, output_channels],
+            -initial_range,
             initial_range))
-    bias = tf.get_variable('conv_bias', initializer = tf.zeros([output_channels]))
+    bias = tf.get_variable('conv_bias', initializer=tf.zeros([output_channels]))
 
     # convolve input with padding so image dimensions are same
-    convolved = tf.nn.conv2d(inp, weights, [1,1,1,1], padding) + bias
+    convolved = tf.nn.conv2d(inp, weights, [1, 1, 1, 1], padding) + bias
     return tf.tanh(convolved)
 
-def fully_connected_layer(inp):
 
+def fully_connected_layer(inp):
     """
         uses 1x1 convolution to slide a fully connected
         layer with 64 hidden units and relu activations
@@ -164,13 +165,13 @@ def fully_connected_layer(inp):
 
     # input to hidden
     W = tf.get_variable(
-        'classifier_weights', 
+        'classifier_weights',
         initializer=tf.random_uniform(
-            [1, 1, channels, hidden_neurons], 
-            -val, 
-            val))   
+            [1, 1, channels, hidden_neurons],
+            -val,
+            val))
     b = tf.get_variable('classifier_bias', initializer=tf.zeros([hidden_neurons]))
-    after_conv = tf.nn.relu(tf.nn.conv2d(inp, W, strides = [1, 1, 1, 1], padding = 'VALID') + b)
+    after_conv = tf.nn.relu(tf.nn.conv2d(inp, W, strides=[1, 1, 1, 1], padding='VALID') + b)
 
     # reshape after conv to 2D so we have batch * height * width x hidden
     # first flip so have 
@@ -181,7 +182,7 @@ def fully_connected_layer(inp):
     #   batch*height*width x hidden
     reshaped_out = tf.transpose(
         tf.reshape(
-            tf.transpose(after_conv, (3, 0, 1, 2)), 
+            tf.transpose(after_conv, (3, 0, 1, 2)),
             [hidden_neurons, -1]),
         (1, 0))
 
@@ -191,11 +192,12 @@ def fully_connected_layer(inp):
     val = np.sqrt(6. / (n_in + n_out))
 
     # hidden to output logits
-    WW = tf.get_variable('classifier_weights2', initializer=tf.random_uniform([hidden_neurons, 2], -val, val))  
+    WW = tf.get_variable('classifier_weights2', initializer=tf.random_uniform([hidden_neurons, 2], -val, val))
     bb = tf.get_variable('classifier_bias_2', initializer=tf.zeros([2]))
     out = tf.matmul(reshaped_out, WW) + bb
 
     return out
+
 
 def diagonal_lstm(units, inp_size):
     """
@@ -216,16 +218,16 @@ def diagonal_lstm(units, inp_size):
     # we want to have W_lh_l + 
     number_diagonal_values_to_convolve = 2
     hidden_weights = tf.get_variable(
-        'hidden_weights', 
+        'hidden_weights',
         initializer=tf.random_normal(
-            [number_diagonal_values_to_convolve, units, directions, 5*units], 
-            0, 
+            [number_diagonal_values_to_convolve, units, directions, 5 * units],
+            0,
             v))
     number_diagonal_values_to_convolve = 1
     input_weights = tf.get_variable(
-        'input_weights', 
+        'input_weights',
         initializer=tf.random_normal(
-            [number_diagonal_values_to_convolve, inp_size, directions, 5*units],
+            [number_diagonal_values_to_convolve, inp_size, directions, 5 * units],
             0,
             v))
 
@@ -240,8 +242,7 @@ def diagonal_lstm(units, inp_size):
     ob = _bias_weights('o_bias')
 
     def cell(diagonal_input, diagonal_acti, diagonal_cell):
-
-        """ 
+        """
             INPUT
 
 
@@ -266,13 +267,13 @@ def diagonal_lstm(units, inp_size):
         # batch x diagonal_size+1 x units x 4 * WEIGHT = batch x diagonal_size x 1 x dirs*(5units)
         # we kill the 1 dimension with the slice, cannot use squeeze as sometimes other dimensions
         # will be 1
-        hidden_mats = tf.nn.depthwise_conv2d(diagonal_acti, hidden_weights, [1,1,1,1], 'VALID')
+        hidden_mats = tf.nn.depthwise_conv2d(diagonal_acti, hidden_weights, [1, 1, 1, 1], 'VALID')
         # b x diagonal x dirs*(5units)
-        hidden_mats = hidden_mats[:,:,0,:]
+        hidden_mats = hidden_mats[:, :, 0, :]
         # batch x diagonal_size x in_size x 4 * WEIGHT = batch x diagonal_size x 1 x dirs*(5units)
-        input_mats = tf.nn.depthwise_conv2d(diagonal_input, input_weights, [1,1,1,1], 'VALID')
+        input_mats = tf.nn.depthwise_conv2d(diagonal_input, input_weights, [1, 1, 1, 1], 'VALID')
         # b x diagonal x dirs*(5units)
-        input_mats = input_mats[:,:,0,:]
+        input_mats = input_mats[:, :, 0, :]
 
         # combined mats
         # b x diagonal x dirs(5units)
@@ -285,24 +286,25 @@ def diagonal_lstm(units, inp_size):
         # cell stuff
         # b x diagonal x units x dir
         # need to have some 2xunits convolution along diagonal_cell
-        cell_up = diagonal_cell[:,0:-1,:,:]
-        cell_left = diagonal_cell[:,1:,:,:]
+        cell_up = diagonal_cell[:, 0:-1, :, :]
+        cell_left = diagonal_cell[:, 1:, :, :]
 
         # GATES AND CELL
         # each combineds is
         # b x diagonal x dirs x units
-        i = tf.sigmoid(combined[:,:,:,:,0] + ib)
-        f1 = tf.sigmoid(combined[:,:,:,:,1] + fb1)
-        f2 = tf.sigmoid(combined[:,:,:,:,2] + fb2)
-        cell = combined[:,:,:,:,4] + cb
-        cell_state = tf.tanh(cell)*i + ((cell_up*f1 + cell_left*f2)/(f1+f2))*(1-i)
-        o = tf.sigmoid(combined[:,:,:,:,3] + ob)
-        activation = o*tf.tanh(cell_state)
+        i = tf.sigmoid(combined[:, :, :, :, 0] + ib)
+        f1 = tf.sigmoid(combined[:, :, :, :, 1] + fb1)
+        f2 = tf.sigmoid(combined[:, :, :, :, 2] + fb2)
+        cell = combined[:, :, :, :, 4] + cb
+        cell_state = tf.tanh(cell) * i + ((cell_up * f1 + cell_left * f2) / (f1 + f2)) * (1 - i)
+        o = tf.sigmoid(combined[:, :, :, :, 3] + ob)
+        activation = o * tf.tanh(cell_state)
 
         # b x diagonal x unit x dir
         return activation, cell_state
 
     return cell
+
 
 def get_single_diagonal_indices(height, width, diagonal):
     """
@@ -320,21 +322,22 @@ def get_single_diagonal_indices(height, width, diagonal):
 
     # get starting value
     start = tf.cond(
-        diagonal<height, 
-        lambda:diagonal*height_offset, 
-        lambda:(height-1)*height_offset + (diagonal%height + 1)*width_offset)
+        diagonal < height,
+        lambda: diagonal * height_offset,
+        lambda: (height - 1) * height_offset + (diagonal % height + 1) * width_offset)
 
     # end value
     end = tf.cond(
-        diagonal<height, 
-        lambda:(diagonal)*width_offset - 1, 
-        lambda: height_offset - width_offset + (diagonal%height + 1)*height_offset -1 )
+        diagonal < height,
+        lambda: (diagonal) * width_offset - 1,
+        lambda: height_offset - width_offset + (diagonal % height + 1) * height_offset - 1)
 
     # delta moves us one up and one along
     delta = -(height_offset) + width_offset
 
     # actual values
     return tf.range(start, end, delta)
+
 
 def get_diagonal_indices(diagonal, tensor):
     """
@@ -348,25 +351,26 @@ def get_diagonal_indices(diagonal, tensor):
     _, height, width, inp_size, directions = tensor.get_shape().as_list()
     batch = tf.shape(tensor)[0]
     diagonal_size = tf.cond(
-        diagonal<height, 
-        lambda:diagonal + 1, 
-        lambda:height - (diagonal%height + 1))
+        diagonal < height,
+        lambda: diagonal + 1,
+        lambda: height - (diagonal % height + 1))
     start_row = tf.cond(
-        diagonal<height, 
-        lambda:diagonal, 
-        lambda:height - 1)
+        diagonal < height,
+        lambda: diagonal,
+        lambda: height - 1)
     start_col = tf.cond(
-        diagonal<height, 
-        lambda:0, 
-        lambda:diagonal%height + 1)
+        diagonal < height,
+        lambda: 0,
+        lambda: diagonal % height + 1)
     rows = tf.range(
-        start_row, 
-        start_row-diagonal_size, 
+        start_row,
+        start_row - diagonal_size,
         -1)
     cols = tf.range(
-        start_col, 
-        start_col+diagonal_size)
+        start_col,
+        start_col + diagonal_size)
     return tf.stack([rows, cols], axis=1)
+
 
 def get_diagonal_values(diagonal, tensor):
     """
@@ -381,7 +385,8 @@ def get_diagonal_values(diagonal, tensor):
     row_col = get_diagonal_indices(diagonal, tensor)
     values = tf.gather_nd(tensor, row_col)
     # reshapes to batch x diagonalx inp_szie x direction
-    return tf.transpose(values, (1,0,2,3))
+    return tf.transpose(values, (1, 0, 2, 3))
+
 
 def fast_MD_dynamic(input_data, units):
     """
@@ -398,17 +403,17 @@ def fast_MD_dynamic(input_data, units):
     batch_size = tf.shape(input_data)[0]
 
     # make input height, width, batch, inp, direction
-    input_data_transposed = tf.transpose(input_data, (1,2,0,3,4))
+    input_data_transposed = tf.transpose(input_data, (1, 2, 0, 3, 4))
 
     # needs to be square for current implemntation
-    assert height==width
+    assert height == width
 
     # construct diagonal lstm cell
     # cell(inp, acti, cell) = acti, cell
     cell = diagonal_lstm(units, inp_size)
 
     # intial values
-    num_diag = 2*(height-1) + 1
+    num_diag = 2 * (height - 1) + 1
     zeros = tf.stack([batch_size, 2, units, directions])
     current_activations = tf.fill(zeros, 0.0)
     initial_state = tf.fill([batch_size, 1, units, directions], 0.0)
@@ -417,7 +422,7 @@ def fast_MD_dynamic(input_data, units):
 
     # will ultimately store our activations
     # when stacked will be h,w,b,u,d
-    activations_ta = TensorArray(dtype=tf.float32, size=height*width, element_shape=tf.TensorShape([None, units, 4]))
+    activations_ta = TensorArray(dtype=tf.float32, size=height * width, element_shape=tf.TensorShape([None, units, 4]))
 
     def pad_with_initial(tensor):
         """pads for edge activations/cells"""
@@ -436,24 +441,24 @@ def fast_MD_dynamic(input_data, units):
 
         # need to pad aci/cell except in first iteration
         not_first_acti = tf.cond(
-            diagonal < height, 
-            lambda:tf.pad(current_activations, [[0,0], [1,1], [0,0], [0,0]]), 
-            lambda:current_activations)
+            diagonal < height,
+            lambda: tf.pad(current_activations, [[0, 0], [1, 1], [0, 0], [0, 0]]),
+            lambda: current_activations)
 
         current_activations = tf.cond(
             tf.equal(diagonal, 0),
-            lambda:current_activations,
-            lambda:not_first_acti)
+            lambda: current_activations,
+            lambda: not_first_acti)
 
         not_first_cell = tf.cond(
-            diagonal < height, 
-            lambda:pad_with_initial(current_states),
-            lambda:current_states)
+            diagonal < height,
+            lambda: pad_with_initial(current_states),
+            lambda: current_states)
 
         current_states = tf.cond(
-            tf.equal(diagonal, 0), 
-            lambda:current_states,
-            lambda:not_first_cell)
+            tf.equal(diagonal, 0),
+            lambda: current_states,
+            lambda: not_first_cell)
 
         # work out new activations
         current_activations, current_states = cell(input_diagonal, current_activations, current_states)
@@ -461,7 +466,7 @@ def fast_MD_dynamic(input_data, units):
         # batch x diagonal x unit x direction
         current_states.set_shape([None, None, units, directions])
         current_activations.set_shape([None, None, units, directions])
-        
+
         # get indices to place into activations
         indices = get_single_diagonal_indices(height, width, diagonal)
 
@@ -469,7 +474,7 @@ def fast_MD_dynamic(input_data, units):
         # scatter works by using the first index
         # thus activations contains
         # batch x units x direction
-        activations_ta = activations_ta.scatter(indices, tf.transpose(current_activations, (1,0,2,3)))
+        activations_ta = activations_ta.scatter(indices, tf.transpose(current_activations, (1, 0, 2, 3)))
 
         diagonal += 1
         return activations_ta, current_activations, current_states, diagonal
@@ -482,20 +487,21 @@ def fast_MD_dynamic(input_data, units):
     diag_shape = tf.TensorShape([])
     ta_shape = tf.TensorShape(None)
     returned = tf.while_loop(
-                cond = cond,
-                body = body,
-                loop_vars= [activations_ta, current_activations, current_states, diagonal],
-                name = 'looooop',
-                shape_invariants=[ta_shape, acti_shape, cell_shape, diag_shape],
-                swap_memory=True)
+        cond=cond,
+        body=body,
+        loop_vars=[activations_ta, current_activations, current_states, diagonal],
+        name='looooop',
+        shape_invariants=[ta_shape, acti_shape, cell_shape, diag_shape],
+        swap_memory=True)
 
     activations = returned[0].stack()
-    activations.set_shape([height*width, None, units, directions])
+    activations.set_shape([height * width, None, units, directions])
     activations = tf.transpose(activations, (1, 0, 2, 3))
     activations = tf.split(activations, num_or_size_splits=height, axis=1)
     activations = tf.stack(activations, 1)
 
     return activations
+
 
 def MD_parallel(image, units):
     """
@@ -509,7 +515,7 @@ def MD_parallel(image, units):
     tr = tf.map_fn(tf.image.flip_left_right, image)
     bl = tf.map_fn(tf.image.flip_up_down, image)
     br = tf.map_fn(tf.image.flip_left_right, tf.map_fn(tf.image.flip_up_down, image))
-    all_together = tf.stack([tl,tr,bl,br], 4)
+    all_together = tf.stack([tl, tr, bl, br], 4)
 
     # all_activations is b x height x width x units x dir
     # seperate to reorient activations
@@ -517,13 +523,13 @@ def MD_parallel(image, units):
     tl, tr, bl, br = tf.split(all_activations, num_or_size_splits=4, axis=4)
 
     # flip etc to align activations correctly
-    tl = tl[:,:,:,:,0]
-    tr = tf.map_fn(tf.image.flip_left_right, tr[:,:,:,:,0])
-    bl = tf.map_fn(tf.image.flip_up_down, bl[:,:,:,:,0])
-    br = tf.map_fn(tf.image.flip_up_down, tf.map_fn(tf.image.flip_left_right, br[:,:,:,:,0]))
+    tl = tl[:, :, :, :, 0]
+    tr = tf.map_fn(tf.image.flip_left_right, tr[:, :, :, :, 0])
+    bl = tf.map_fn(tf.image.flip_up_down, bl[:, :, :, :, 0])
+    br = tf.map_fn(tf.image.flip_up_down, tf.map_fn(tf.image.flip_left_right, br[:, :, :, :, 0]))
 
     # stack into tensor
-    all_together = tf.stack([tl,tr,bl,br], 4)
+    all_together = tf.stack([tl, tr, bl, br], 4)
     all_together.set_shape([None, height, width, units, 4])
 
     return all_together

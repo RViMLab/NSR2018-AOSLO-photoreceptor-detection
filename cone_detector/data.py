@@ -4,23 +4,23 @@
 # Proprietary and confidential
 # Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 
-import os
-import numpy as np
-import sys
-import matplotlib.pyplot as plt
 import csv
+import os
 from datetime import datetime
+
+import matplotlib.pyplot as plt
+import numpy as np
 from PIL import Image
+
 
 class Data:
 
     @staticmethod
-    def crop_center(img,size):
-        y,x = img.shape
-        startx = x//2-(size//2)
-        starty = y//2-(size//2)    
-        return img[starty:starty+size,startx:startx+size]
-
+    def crop_center(img, size):
+        y, x = img.shape
+        startx = x // 2 - (size // 2)
+        starty = y // 2 - (size // 2)
+        return img[starty:starty + size, startx:startx + size]
 
     def __init__(self, location):
         self.location = location
@@ -31,10 +31,10 @@ class Data:
         im = Image.open(image_path)
         if len(im.split()) > 1:
             im = im.split()[0]
-        im = np.array(im.getdata(), dtype = np.uint8).reshape(im.size[1], im.size[0])
+        im = np.array(im.getdata(), dtype=np.uint8).reshape(im.size[1], im.size[0])
         return im
 
-    def get_images_by_size(self,):
+    def get_images_by_size(self, ):
         images_by_size = {}
 
         for image in os.listdir(self.location):
@@ -56,7 +56,7 @@ class Data:
         array = array * 255.
         return array.astype(np.uint8)
 
-    def build_output(self, networkOutput): 
+    def build_output(self, networkOutput):
         cwd = os.getcwd()
         now = datetime.now()
         output_folder = os.path.join(cwd, str(now))
@@ -65,7 +65,7 @@ class Data:
         image_folder = os.path.join(output_folder, 'images')
 
         def centreToCSV(centers, image_name):
-            with open(os.path.join(position_folder, image_name+'.csv'), 'wb') as csvfile:
+            with open(os.path.join(position_folder, image_name + '.csv'), 'wb') as csvfile:
                 writer = csv.writer(csvfile)
                 center = dict()
                 for row, col in centers:
@@ -82,15 +82,15 @@ class Data:
         for output_dict in networkOutput:
             im_name, image, centreList = output_dict['name'], output_dict['cropped'], output_dict['centres']
             plt.imshow(image, cmap='gray')
-            xx=np.array(map(lambda e: float(e[1]), centreList))
-            yy=np.array(map(lambda e: float(e[0]), centreList))
+            xx = np.array(map(lambda e: float(e[1]), centreList))
+            yy = np.array(map(lambda e: float(e[0]), centreList))
             plt.scatter(x=xx, y=yy, c='white', s=10, marker='+')
             plt.axis('off')
             plt.tight_layout()
             plt.savefig(os.path.join(figure_folder, im_name + '.png'), transparent=True)
             plt.cla()
             saved_figure += 1
-            
+
             centreToCSV(centreList, im_name)
             im = Image.fromarray(self.arrayToGrayscale(image))
             im.save(os.path.join(image_folder, im_name))

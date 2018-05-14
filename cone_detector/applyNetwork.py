@@ -4,13 +4,15 @@
 # Proprietary and confidential
 # Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 
-import tensorflow as tf
-import numpy as np
 import os
 
+import numpy as np
+import tensorflow as tf
+
 from .data import Data
-from .regional_max import get_centers
 from .model import DICE_CONV_MD_32U2L_tanh
+from .regional_max import get_centers
+
 
 def run(dataFolder):
     """
@@ -19,7 +21,7 @@ def run(dataFolder):
         output
             [{image_name, central_crop, centers_as_list}, ...]
     """
-    
+
     # get modules location so we can load the tensorflow model
     # parameters
     direc = os.path.dirname(os.path.realpath(__file__))
@@ -39,11 +41,10 @@ def run(dataFolder):
         # construct graph and apply to images
         with tf.Graph().as_default():
             with tf.Session() as sess:
-
                 # build graph and restore, not we build it implicitly
                 # using the size, due to the placeholder
                 feed_dict = dict()
-                image_place = tf.placeholder(dtype = tf.float32, shape = [1, size, size, 1])
+                image_place = tf.placeholder(dtype=tf.float32, shape=[1, size, size, 1])
                 image, out, prob_of_cone = model(image_place)
                 saver = tf.train.Saver()
                 saver.restore(sess, model_location)
@@ -58,7 +59,7 @@ def run(dataFolder):
                     centred = cropped - np.mean(cropped)
 
                     # put through graph
-                    feed_dict[image_place] = centred[None,:,:,None]
+                    feed_dict[image_place] = centred[None, :, :, None]
                     im, prob_map = sess.run([image, prob_of_cone], feed_dict=feed_dict)
                     prob_map = np.reshape(prob_map, [size, size])
                     centres = get_centers(prob_map)
