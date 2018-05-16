@@ -19,7 +19,7 @@ except ImportError:
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 
-def main(data_folder):
+def main(data_folder, manual, brightDark=True):
     """
         - applies network to all tifs in data_folder
         - runs an interactive gui on these results for cleanup
@@ -30,20 +30,12 @@ def main(data_folder):
     if '/' or '\\' not in data_folder:
         data_folder = os.path.join(os.getcwd(), data_folder)
 
-    save_all = input('Skip manual correction? (y/n)')
-    save_all = save_all.lower()
-
-    while save_all not in ['y', 'n']:
-        save_all = input('Skip manual correction? (y/n)')
-        save_all = save_all.lower()
-
-
     # apply network and generate estimated
     print('Applying method to data')
-    outputs = run(data_folder)
+    outputs = run(data_folder, brightDark)
 
     # will manually correct in gui
-    if save_all=='n':
+    if manual=='y':
         # manually correct
         Annotator(outputs)
 
@@ -60,5 +52,5 @@ def main(data_folder):
 
     # create output
     print('Building Output')
-    corrected = True if save_all=='n' else False
+    corrected = True if manual=='y' else False
     build_output(outputs, data_folder, corrected)

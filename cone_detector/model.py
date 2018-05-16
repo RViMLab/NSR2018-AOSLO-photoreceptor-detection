@@ -6,8 +6,7 @@
 
 from .model_components import *
 
-
-def DICE_CONV_MD_32U2L_tanh(image):
+def DICE_CONV_MD_32U2L_tanh(image, brightDark=True):
     """
         Builds the graph for the best model in the paper
         M-C-M
@@ -28,6 +27,10 @@ def DICE_CONV_MD_32U2L_tanh(image):
     """
     _, height, width, channels = image.get_shape().as_list()
     units = 32
+
+    # flip so bright is on left if we have to
+    if not brightDark:
+        image = tf.image.flip_left_right(image)
 
     # Conv layer
     with tf.variable_scope('conv_0'):
@@ -56,8 +59,11 @@ def DICE_CONV_MD_32U2L_tanh(image):
     # convert scores to probabilities
     probs = tf.nn.softmax(out)
 
-    # gives classification
-    prediction = tf.argmax(probs, 1)
+    # flip so bright is on left if we have to
+    if not brightDark:
+        probs = tf.reshape(probs, [-1, height, width, 2])
+        probs = tf.image.flip_left_right(probs)
+        probs = tf.reshape(probs, [-1, 2])
 
     # if you give images of shape (b,s,s,1) then
     # probs is (b,s,s,1) and each value of probs

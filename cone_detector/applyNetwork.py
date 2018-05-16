@@ -14,7 +14,7 @@ from .model import DICE_CONV_MD_32U2L_tanh
 from .regional_max import get_centers
 
 
-def run(dataFolder):
+def run(dataFolder, brightDark):
     """
         Applies network to all images in folder
 
@@ -45,7 +45,7 @@ def run(dataFolder):
                 # using the size, due to the placeholder
                 feed_dict = dict()
                 image_place = tf.placeholder(dtype=tf.float32, shape=[1, size, size, 1])
-                image, out, prob_of_cone = model(image_place)
+                image, out, prob_of_cone = model(image_place, brightDark)
                 saver = tf.train.Saver()
                 saver.restore(sess, model_location)
 
