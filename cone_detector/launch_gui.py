@@ -61,4 +61,4 @@ class ConeDetectorGUI:
         cone_detector.main(im_folder, lut_file, manually_annotate, bright_dark)
 
     def close_builder(self):
-        self.root.destroy()
+        self.root.quit()
