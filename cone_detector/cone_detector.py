@@ -19,7 +19,7 @@ except ImportError:
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 
-def main(data_folder, manual, brightDark=True):
+def main(data_folder, lut_csv, manual, brightDark):
     """
         - applies network to all tifs in data_folder
         - runs an interactive gui on these results for cleanup
@@ -35,7 +35,7 @@ def main(data_folder, manual, brightDark=True):
     outputs = run(data_folder, brightDark)
 
     # will manually correct in gui
-    if manual=='y':
+    if manual==True:
         # manually correct
         Annotator(outputs)
 
@@ -52,5 +52,5 @@ def main(data_folder, manual, brightDark=True):
 
     # create output
     print('Building Output')
-    corrected = True if manual=='y' else False
-    build_output(outputs, data_folder, corrected)
+    corrected = manual
+    build_output(outputs, data_folder, lut_csv, corrected)

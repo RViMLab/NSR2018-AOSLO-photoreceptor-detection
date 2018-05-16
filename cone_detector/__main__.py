@@ -6,18 +6,13 @@
 
 import argparse
 
-from . import cone_detector
+from . import cone_detector, launch_gui
 
 
 def main():
     """command line entry to detect"""
-    parser = argparse.ArgumentParser(prog='cone_detector')
-    parser.add_argument('-f', help='folder name in current directory')
-    parser.add_argument('-m', help='whether to manually amend?',choices=set("yn"))
-    parser.add_argument('-b', help='bright lobe on left?', choices=set("yn"))
-    args = parser.parse_args()
-    cone_detector.main(args.f, args.a, args.b)
-
+    r = launch_gui.ConeDetectorGUI()
+    r.root.mainloop()
 
 if __name__ == '__main__':
     main()

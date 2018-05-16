@@ -15,22 +15,11 @@ from PIL import Image
 from .stats_calculator import StatsCalculator
 
 
-def build_output(outputs, data_folder, corrected):
-
-    # building the um_per_pix dict
-    # find the csv file
-    files = os.listdir(data_folder)
-    csv_file_name = None
-    for f in files:
-        if '.csv' == f[-4:]:
-            csv_file_name = f
-            break
-
-    assert csv_file_name is not None
+def build_output(outputs, data_folder, lut_csv, corrected):
 
     # extract name and conversion
     um_per_pix_dict = {}
-    with open(os.path.join(data_folder, csv_file_name), 'r') as csv_file:
+    with open(os.path.join(data_folder, lut_csv), 'r') as csv_file:
         reader = csv.reader(csv_file)
         for row in reader:
             row = [x for x in row if not x == '']
