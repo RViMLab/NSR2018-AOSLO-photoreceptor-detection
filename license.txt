@@ -1,0 +1,14 @@
+Copyright (2018), Benjamin Davidson
+
+This software for the localisation of cone photoreceptors is being made
+available for individual research use only.  Any commercial use or any
+redistribution of this software requires a license from the author.
+
+For further details on obtaining a commercial license, contact Benjamin Davidson
+ben.davidson6@googlemail.com
+
+THE AUTHOR MAKES NO REPRESENTATIONS OR
+WARRANTIES OF ANY KIND CONCERNING THIS SOFTWARE.
+
+This license file must be retained with all copies of the software,
+including any modified or derivative versions.
