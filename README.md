@@ -34,13 +34,13 @@ INITIAL_XXXX_WHATEVER.tif
     mm_0002, 0.85
     ```
 * To run the method open a cmd prompt or terminal and enter:
-```buildoutcfg
+```
 cone_detector
 ```
 * Configure how you want to run the method. If the bright sides of cones are to the left, mark the check box.
 ##Output
 Once complete a folder will be saved containing
-```buildoutcfg
+```
 dateTime/
     Images/
     AlgorithmLocations/
