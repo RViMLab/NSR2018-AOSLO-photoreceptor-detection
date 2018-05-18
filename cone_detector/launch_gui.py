@@ -60,12 +60,14 @@ class ConeDetectorGUI:
         run.grid(row=4, column=0)
 
     def run(self):
-        im_folder = self.im_folder_var.get()
-        lut_file = self.lut_var.get()
-        bright_dark = self.bright_dark_var.get()
-        manually_annotate = self.manually_annotate_var.get()
+        self.im_folder = self.im_folder_var.get()
+        self.lut_file = self.lut_var.get()
+        self.bright_dark = self.bright_dark_var.get()
+        self.manually_annotate = self.manually_annotate_var.get()
         self.close_builder()
-        cone_detector.main(im_folder, lut_file, manually_annotate, bright_dark)
+
+    def start(self):
+        self.root.mainloop()
 
     def close_builder(self):
-        self.root.quit()
+        self.root.destroy()

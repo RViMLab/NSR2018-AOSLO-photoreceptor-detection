@@ -6,6 +6,7 @@
 
 import os
 import pickle
+import sys
 
 from .applyNetwork import run
 from .annotation_gui import Annotator
@@ -50,7 +51,9 @@ def main(data_folder, lut_csv, manual, brightDark):
             outputs = pickle.load(handle)['outputsAfterAnnotation']
 
 
+
     # create output
     print('Building Output')
     corrected = manual
     build_output(outputs, data_folder, lut_csv, corrected)
+

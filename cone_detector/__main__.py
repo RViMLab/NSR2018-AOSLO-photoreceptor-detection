@@ -12,7 +12,8 @@ from . import cone_detector, launch_gui
 def main():
     """command line entry to detect"""
     r = launch_gui.ConeDetectorGUI()
-    r.root.mainloop()
+    r.start()
+    cone_detector.main(r.im_folder, r.lut_file, r.manually_annotate, r.bright_dark)
 
 if __name__ == '__main__':
     main()
