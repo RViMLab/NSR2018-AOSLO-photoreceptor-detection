@@ -23,7 +23,6 @@ class Annotator:
 
     def __init__(self, outputs, restart=False):
 
-        # todo in case crash
         if restart:
             pass
 

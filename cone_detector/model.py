@@ -55,6 +55,7 @@ def DICE_CONV_MD_32U2L_tanh(image, brightDark=True):
     # out is (b,s,s,2) and is the raw logits
     out = fully_connected_layer(MD)
 
+
     # depending on optimize return different outputs
     # convert scores to probabilities
     probs = tf.nn.softmax(out)
@@ -71,3 +72,20 @@ def DICE_CONV_MD_32U2L_tanh(image, brightDark=True):
     # pixel belongs to a cone
     prob_of_cell = probs[:, 1]
     return image, out, prob_of_cell
+
+def trainable_model(image, segmentation, brightDark):
+    image, out, _ = DICE_CONV_MD_32U2L_tanh(image, brightDark)
+
+    # weighted loss using ratio
+    loss, reshaped_labels = get_dice_loss(out, segmentation)
+
+    optimizer = tf.train.RMSPropOptimizer(1e-3)
+    gradients, variables = zip(*optimizer.compute_gradients(loss))
+
+    # occasionally gradients would explode
+    # tells us if there are NaN values in any tensors
+    grad_checks = [tf.check_numerics(grad, 'Gradients exploding') for grad in gradients if grad is not None]
+    with tf.control_dependencies(grad_checks):
+        optimize = optimizer.apply_gradients(zip(gradients, variables))
+
+    return image, segmentation, optimize

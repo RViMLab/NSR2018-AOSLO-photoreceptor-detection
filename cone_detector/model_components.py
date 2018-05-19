@@ -66,7 +66,7 @@ def output(image, labels, optimize, loss, out, reshaped_labels):
         return image, labels, prob_of_cell, correct_prediction
 
 
-def get_dice_loss(out, labels, weight=True):
+def get_dice_loss(out, labels):
     """
         use a balanced loss with
 
@@ -91,8 +91,8 @@ def get_dice_loss(out, labels, weight=True):
 
     r0 = tf.reduce_sum(reshaped_labels[:, :, 0], axis=1)
     r1 = np.float32(height * width) - r0
-    w0 = 1. / (r0 * r0 + 1.) if weight else 1.
-    w1 = 1. / (r1 * r1 + 1.) if weight else 1.
+    w0 = 1. / (r0 * r0 + 1.)
+    w1 = 1. / (r1 * r1 + 1.)
 
     numerators = w0 * multed[:, 0] + w1 * multed[:, 1]
     denom = w0 * summed[:, 0] + w1 * summed[:, 1]

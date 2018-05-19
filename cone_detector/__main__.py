@@ -13,7 +13,26 @@ def main():
     """command line entry to detect"""
     r = launch_gui.ConeDetectorGUI()
     r.start()
-    cone_detector.main(r.im_folder, r.lut_file, r.manually_annotate, r.bright_dark)
+
+    if r.mode==r.APPLY:
+        cone_detector.apply(
+            r.im_folder_var.get(),
+            r.lut_var.get(),
+            r.model_name_var.get(),
+            r.manually_annotate_var.get(),
+            r.bright_dark_var.get()
+            )
+    elif r.mode==r.DATA:
+        cone_detector.data(
+            r.im_folder_var.get(),
+            r.bright_dark_var.get(),
+            r.new_data_name_var.get(),
+            r.model_name_var.get())
+    elif r.mode==r.TRAIN:
+        cone_detector.train_new(
+            r.train_data_loc_var.get(),
+            r.new_model_name_var.get())
+
 
 if __name__ == '__main__':
     main()
