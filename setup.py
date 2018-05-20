@@ -7,7 +7,7 @@ setup(name='cone_detector',
       author='Benjamin Davidson',
       author_email='ben.davidson6@googlemail.com',
       packages=['cone_detector'],
-      package_data={'cone_detector': ['*']},
+      include_package_data=True,
       install_requires=[
           'matplotlib',
           'numpy',
