@@ -1,0 +1,2 @@
+recursive-include cone_detector/models *
+recursive-include cone_detector/datasets *
