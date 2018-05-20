@@ -6,9 +6,7 @@
 
 import os
 import pickle
-import sys
-
-from .applyNetwork import run
+from .applyNetwork import locate_cones_with_model
 from .annotation_gui import Annotator
 from .output_builder import build_output
 from .build_tfrecord import write_dataset
@@ -31,7 +29,7 @@ def apply(data_folder, lut_csv, mname, manual, brightDark):
 
     # apply network and generate estimated
     print('Applying method to data')
-    outputs = run(data_folder, brightDark, mname)
+    outputs = locate_cones_with_model(data_folder, brightDark, mname)
 
     # will manually correct in gui
     if manual==True:
@@ -60,7 +58,7 @@ def data(data_folder, brightDark, data_name, mname):
 
     # get network output, if mname is none then returns empty
     # centers
-    outputs = run(data_folder, brightDark, mname)
+    outputs = locate_cones_with_model(data_folder, brightDark, mname)
 
     # manually correct
     Annotator(outputs)
@@ -79,7 +77,7 @@ def data(data_folder, brightDark, data_name, mname):
     write_dataset(data_name, outputs)
 
 
-def train_new(data_name, mname):
-    train_model(mname, data_name)
+def train_new(train_data_name, val_data_name, mname, brightDark):
+    train_model(mname, train_data_name, brightDark, val_data_name)
 
 

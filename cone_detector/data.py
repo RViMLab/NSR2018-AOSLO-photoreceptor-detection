@@ -11,6 +11,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+from . import constants
 
 
 class Data:
@@ -31,6 +32,8 @@ class Data:
         im = Image.open(image_path)
         if len(im.split()) > 1:
             im = im.split()[0]
+
+        # PIL uses column row
         im = np.array(im.getdata(), dtype=np.uint8).reshape(im.size[1], im.size[0])
         return im
 
@@ -38,8 +41,7 @@ class Data:
         images_by_size = {}
 
         for image in os.listdir(self.location):
-            if 'tif' in image.split('.')[-1]:
-                image_path = os.path.join(self.location, image)
+            if constants.TIF in image.split('.')[-1]:
                 im = self.grayscale_image(image)
                 size = min(im.shape)
                 if size not in images_by_size.keys():
@@ -67,12 +69,11 @@ class Data:
         def centreToCSV(centers, image_name):
             with open(os.path.join(position_folder, image_name + '.csv'), 'wb') as csvfile:
                 writer = csv.writer(csvfile)
-                center = dict()
                 for row, col in centers:
                     center = [col, row]
                     writer.writerow(center)
 
-        number_figures = 10
+
         saved_figure = 0
         os.makedirs(output_folder)
         os.makedirs(figure_folder)

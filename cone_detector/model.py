@@ -73,19 +73,23 @@ def DICE_CONV_MD_32U2L_tanh(image, brightDark=True):
     prob_of_cell = probs[:, 1]
     return image, out, prob_of_cell
 
-def trainable_model(image, segmentation, brightDark):
-    image, out, _ = DICE_CONV_MD_32U2L_tanh(image, brightDark)
+def trainable_model(image, segmentation, brightDark, optimize=True):
+    image, out, prob = DICE_CONV_MD_32U2L_tanh(image, brightDark)
 
-    # weighted loss using ratio
-    loss, reshaped_labels = get_dice_loss(out, segmentation)
+    if optimize:
+        # weighted loss using ratio
+        loss, reshaped_labels = get_dice_loss(out, segmentation)
 
-    optimizer = tf.train.RMSPropOptimizer(1e-3)
-    gradients, variables = zip(*optimizer.compute_gradients(loss))
+        optimizer = tf.train.RMSPropOptimizer(1e-3)
+        gradients, variables = zip(*optimizer.compute_gradients(loss))
 
-    # occasionally gradients would explode
-    # tells us if there are NaN values in any tensors
-    grad_checks = [tf.check_numerics(grad, 'Gradients exploding') for grad in gradients if grad is not None]
-    with tf.control_dependencies(grad_checks):
-        optimize = optimizer.apply_gradients(zip(gradients, variables))
+        # occasionally gradients would explode
+        # tells us if there are NaN values in any tensors
+        grad_checks = [tf.check_numerics(grad, 'Gradients exploding') for grad in gradients if grad is not None]
+        with tf.control_dependencies(grad_checks):
+            optimize = optimizer.apply_gradients(zip(gradients, variables))
 
-    return image, segmentation, optimize
+        return image, segmentation, prob, optimize
+
+    else:
+        return image, segmentation, prob

@@ -8,14 +8,14 @@
 import tkinter as tk
 import os
 from tkinter.filedialog import askdirectory, askopenfilename
-
-
+from . import constants
 
 class ConeDetectorGUI:
     def __init__(self):
 
         # open window
         self.root = tk.Tk()
+        self.root.title('Automatic Cone Detection')
         # w, h = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         # self.root.geometry("%dx%d+0+0" % (w, h))
 
@@ -23,8 +23,9 @@ class ConeDetectorGUI:
         self.im_folder_var = tk.StringVar()
         self.lut_var = tk.StringVar()
         self.model_name_var = tk.StringVar()
-        self.model_name_var.set('None')
+        self.model_name_var.set(constants.NO_MODEL)
         self.train_data_loc_var = tk.StringVar(value='Choose training data')
+        self.val_data_loc_var = tk.StringVar(value=constants.NO_DATA)
         self.new_data_name_var = tk.StringVar(value='Give data a name')
         self.new_model_name_var = tk.StringVar(value='Give model a name')
 
@@ -85,8 +86,7 @@ class ConeDetectorGUI:
         manual_anotate = tk.Checkbutton(self.frame, text="Manually annotate", variable=self.manually_annotate_var)
         manual_anotate.grid(row=3, column=0, sticky=tk.W)
 
-        direc = os.path.dirname(os.path.realpath(__file__))
-        models = os.listdir(os.path.join(direc, 'models'))
+        models = os.listdir(constants.MODEL_DIREC)
         option = tk.OptionMenu(self.frame, self.model_name_var, *models)
         option.grid(row=4, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
@@ -118,8 +118,7 @@ class ConeDetectorGUI:
         check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_dark_var)
         check_bright.grid(row=2, column=0, sticky=tk.W)
 
-        direc = os.path.dirname(os.path.realpath(__file__))
-        models = os.listdir(os.path.join(direc, 'models'))
+        models = [x for x in os.listdir(constants.MODEL_DIREC) if x[0] != '.']
         option = tk.OptionMenu(self.frame, self.model_name_var, *models)
         option.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
@@ -134,16 +133,23 @@ class ConeDetectorGUI:
         self.frame.pack(expand=1, side=tk.TOP)
 
         # only name not whole path
-        direc = os.path.dirname(os.path.realpath(__file__))
-        datas = os.listdir(os.path.join(direc, 'datasets'))
+        datas = [x for x in os.listdir(constants.DATA_DIREC) if x[0] != '.']
         option = tk.OptionMenu(self.frame, self.train_data_loc_var, *datas)
         option.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
+        # only name not whole path
+        option_val = tk.OptionMenu(self.frame, self.val_data_loc_var, *datas)
+        option_val.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+
         self.model_name = tk.Entry(self.frame, textvariable=self.new_model_name_var)
-        self.model_name.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        self.model_name.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+
+        self.bright_dark_var = tk.BooleanVar()
+        check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_dark_var)
+        check_bright.grid(row=3, column=0, sticky=tk.W)
 
         apply = tk.Button(self.frame, text="Run", command=self.run)
-        apply.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        apply.grid(row=4, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
     def run(self):
         """passes back to main thread"""
