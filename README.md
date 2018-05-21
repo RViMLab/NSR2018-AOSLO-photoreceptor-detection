@@ -25,61 +25,63 @@ This repo contains an implementation of the method described in [this paper](htt
 ```
 
 ## Getting Started
-All you need to install and use the code is Python 3.5.x or 3.6.x.
+To install and use requires:
+* Python 3.5.x or 3.6.x
+* pip
+
 ### Installing
 1. Download the git repository to a folder of your choice, /path/to/code/ConeDetector
 
-2. Install Python package using pip
+2. Install Python package using pip.\
+Ubuntu```pip install /path/to/code/ConeDetector```\
+Windows```python -m pip install /path/to/code/ConeDetector```
 
-Ubuntu
-```
-    pip install /path/to/code/ConeDetector
-```
-Windows
-```
-    python -m pip install /path/to/code/ConeDetector
-```
-
+3. 
+    * If you do not have a gpu, pip install tensorflow:\
+Ubuntu```pip install tensorflow```\
+Windows```python -m pip install tensorflow```
+    * If you do have a gpu, follow these [instructions](https://www.tensorflow.org/install/) to install tensorflow-gpu
+    
+If you just want to apply the model from the paper, you only need tensorflow, not tensorflow-gpu. The gpu version is needed if you want to train new models in any reassonable amount of time.
 ### Using
 
-* Place split detection crops into a folder. Filenames should be of the form 
+* Any images should be of the form, where xxxx is a number with leading zeros, eg 1==0001
 
 ```
 INITIAL_XXXX_WHATEVER.tif
 ```
 
-* Build .csv file containing the um to pixel information. If we have two subjects mm\_0001 and mm\_0002 wherein there are 0.76 um per pixel and 0.85 um per pixel respectively, then the csv file will be of the following form:
-
+* The required lut.csv for applying models should be of the following form, if we have two subjects, for example, with a um to pixel of 0.76 and 0.85 respectively.
 ```
-    mm_0001, 0.76
-    mm_0002, 0.85
+    INITIAL_0001, 0.76
+    INITIAL_0002, 0.85
 ```
 
-* To run the method open a cmd prompt or terminal and enter:
+* To run the code open a cmd prompt, or terminal and enter:
 
 ```
 cone_detector
 ```
 
-* Configure how you want to run the method. If the bright sides of cones are to the left, mark the check box.
 
-## Output
-Once complete a folder will be saved containing
-```
-dateTime/
-    Images/
-    AlgorithmLocations/
-    AlgorithmFigures/
-    CorrectedLocations/
-    CorrectedFigures/
-    stats.csv
-```
+## Features
+After running cone_detector from a terminal a gui will launch asking what you want to do.
+### Apply existing models
+* Required: folder of tifs, lut.csv for each subject in folder
+* Applies model to tifs to estimate locations
+* Can simply trust the algorithm, or manually correct each image
+* Outputs locations and stats for each image
+### Build training data sets for training new models
+* Required: folder of tifs
+* Create labeled data in format used by tensorflow to train new models
+* Can select a model to aid the annotations, or do completely by hand
+* Will save data set as tfrecord, to train new models
+### Train new models
+* Required: training data set built using cone_detector
+* Optional: a validation data set created using cone_detector
+* Will run same training regime described in the paper (if validation data given), otherwise will train for 100 epochs
+* Saves new model, which can be applied in cone_detector
 
-The images folder contains the images which were fed to the network. These are all square, as due to the current implementation we can only apply the network to square images. Igf a non-square image is contained in the input data the largest possible square image will be cropped from the center of the image, and fed to the network instead.
-
-The figures folders contain images of the input tifs, with the cone locations overlayed on top of them. The locations folders contain csv file with the location of cones in each image.
-
-The stats.csv file contains commonly used metrics on each image.
 
 
 
