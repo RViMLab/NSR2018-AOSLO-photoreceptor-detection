@@ -1,10 +1,28 @@
 # Automatic Cone Photoreceptor Localisation with MDRNNs
 
-This repo contains an implementation of the method described in:
+This repo contains an implementation of the method described in [this paper](https://www.nature.com/articles/s41598-018-26350-3). Please cite the paper if you use the code.
 ```
-PAPER REF
+@Article{Davidson2018,
+    author={Davidson, Benjamin
+    and Kalitzeos, Angelos
+    and Carroll, Joseph
+    and Dubra, Alfredo
+    and Ourselin, Sebastien
+    and Michaelides, Michel
+    and Bergeles, Christos},
+    title={Automatic Cone Photoreceptor Localisation in Healthy and Stargardt Afflicted Retinas Using Deep Learning},
+    journal={Scientific Reports},
+    year={2018},
+    volume={8},
+    number={1},
+    pages={7911},
+    issn={2045-2322},
+    doi={10.1038/s41598-018-26350-3},
+    url={https://doi.org/10.1038/s41598-018-26350-3}
+}
+
+
 ```
-cite this paper if you use the code.
 
 ## Getting Started
 All you need to install and use the code is Python 3.5.x or 3.6.x.
