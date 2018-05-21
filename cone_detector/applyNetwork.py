@@ -61,7 +61,7 @@ def run_through_graph(data, mname, size, brightDark, outputs):
                 feed_dict[image_place] = centred[None, :, :, None]
                 im, prob_map = sess.run([image, prob_of_cone], feed_dict=feed_dict)
                 prob_map = np.reshape(prob_map, [size, size])
-                centres = get_centers(prob_map)
+                centres = get_centers(prob_map, mname)
 
                 # save the name, largest central crop, and the centres as a list
                 output_dict['name'] = image_name

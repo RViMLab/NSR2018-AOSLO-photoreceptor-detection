@@ -7,7 +7,9 @@
 import numpy as np
 import scipy.ndimage.filters as filters
 from skimage.measure import regionprops, label
-
+from . import constants
+import os
+import csv
 
 def remove_from_border(c_list, height, width):
     new_list = []
@@ -84,14 +86,25 @@ def get_centroids(prob_map, sigma, h, thresh):
     return centroids
 
 
-def get_centers(prob_map):
-    joint = [1.05263158, 0.88571429]
-    healthy = [1.05263158, 0.88571429]
-    stgd = [1.68421053, 0.98367347]
-    estimated_centroids = get_centroids(prob_map, joint[0], 0., joint[1])
-    if len(estimated_centroids) > 0.0011 * prob_map.shape[0] * prob_map.shape[1]:
-        estimated_centroids = get_centroids(prob_map, healthy[0], 0., healthy[1])
+def get_thresh_sigma(mname):
+    with open(os.path.join(constants.MODEL_DIREC, mname, 'info.csv'), 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            return row
+
+
+def get_centers(prob_map, mname):
+    if mname == constants.PAPER_MODEL:
+        joint = [1.05263158, 0.88571429]
+        healthy = [1.05263158, 0.88571429]
+        stgd = [1.68421053, 0.98367347]
+        estimated_centroids = get_centroids(prob_map, joint[0], 0., joint[1])
+        if len(estimated_centroids) > 0.0011 * prob_map.shape[0] * prob_map.shape[1]:
+            estimated_centroids = get_centroids(prob_map, healthy[0], 0., healthy[1])
+        else:
+            estimated_centroids = get_centroids(prob_map, stgd[0], 0., stgd[1])
     else:
-        estimated_centroids = get_centroids(prob_map, stgd[0], 0., stgd[1])
+        joint = get_thresh_sigma(mname)
+        estimated_centroids = get_centroids(prob_map, joint[0], 0., joint[1])
     estimated_centroids = remove_from_border(estimated_centroids, prob_map.shape[0], prob_map.shape[1])
     return estimated_centroids

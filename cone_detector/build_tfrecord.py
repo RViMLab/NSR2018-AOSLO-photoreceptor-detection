@@ -43,7 +43,7 @@ def expand_centroids(examples):
                                 continue
 
         ex['segmentation'] = segmentation
-
+        ex['locations'] = arr
     return examples
 
 def to_tfrecord(tfrecord_name, data_examples):
