@@ -28,10 +28,17 @@ class ConeDetectorGUI:
         self.chosen_image_source_folder = tk.StringVar()
         self.chosen_lut_file = tk.StringVar()
         self.chosen_existing_model = tk.StringVar()
+        self.chosen_existing_model.set('choose model to apply')
         self.chosen_train_data = tk.StringVar()
+        self.chosen_train_data.set('choose training data')
         self.chosen_val_data = tk.StringVar()
+        self.chosen_val_data.set('choose validation data')
+
         self.chosen_new_data_name = tk.StringVar()
+        self.chosen_new_data_name.set('name dataset')
         self.chosen_new_model_name = tk.StringVar()
+        self.chosen_new_model_name.set('name model')
+
         self.bright_or_dark = tk.BooleanVar()
         self.fully_or_semi_automatic = tk.BooleanVar()
 
@@ -143,7 +150,6 @@ class ConeDetectorGUI:
         option.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # only name not whole path
-        self.chosen_val_data.set(constants.NO_DATA)
         option_val = tk.OptionMenu(self.frame, self.chosen_val_data, *datas)
         option_val.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 

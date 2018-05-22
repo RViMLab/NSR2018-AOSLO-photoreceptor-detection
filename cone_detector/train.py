@@ -50,7 +50,7 @@ class Trainer:
         image_batch, label_batch = pipeline(
             [self.get_data_record(data_name)],
             batch_size=batch_size,
-            num_epochs=1000)
+            num_epochs=300)
 
         return image_batch, label_batch
 
