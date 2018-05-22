@@ -89,7 +89,7 @@ def trainable_model(image, segmentation, brightDark, optimize=True):
         with tf.control_dependencies(grad_checks):
             optimize = optimizer.apply_gradients(zip(gradients, variables))
 
-        return image, segmentation, prob, optimize
+        return optimize
 
     else:
-        return image, segmentation, prob
+        return segmentation, prob

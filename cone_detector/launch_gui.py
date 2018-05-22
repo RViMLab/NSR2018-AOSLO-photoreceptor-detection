@@ -80,7 +80,7 @@ class ConeDetectorGUI:
             )
             self.chosen_lut_file.set(askopenfilename(**options))
 
-        lut_button = tk.Button(self.frame, text="Choose lut", command=get_lut_file)
+        lut_button = tk.Button(self.frame, text="Choose csv", command=get_lut_file)
         lut_button.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # some more options
@@ -122,7 +122,7 @@ class ConeDetectorGUI:
         check_bright.grid(row=2, column=0, sticky=tk.W)
 
         models = [x for x in os.listdir(constants.MODEL_DIREC) if x[0] != '.']
-        models = models.insert(0, constants.NO_MODEL)
+        models.insert(0, constants.NO_MODEL)
         option = tk.OptionMenu(self.frame, self.chosen_existing_model, *models)
         option.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
@@ -143,6 +143,7 @@ class ConeDetectorGUI:
         option.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # only name not whole path
+        self.chosen_val_data.set(constants.NO_DATA)
         option_val = tk.OptionMenu(self.frame, self.chosen_val_data, *datas)
         option_val.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 

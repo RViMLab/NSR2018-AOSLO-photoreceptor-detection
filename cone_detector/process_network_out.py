@@ -10,6 +10,8 @@ from . import constants
 from . import utilities
 import os
 import csv
+import matplotlib.pyplot as plt
+
 
 class PostProcessor:
 
@@ -17,15 +19,17 @@ class PostProcessor:
         self.model_name = mname
 
     def get_csv_path(self):
-        return os.path.join(constants.MODEL_DIREC, self.model_name, 'info.csv')
+        return os.path.join(constants.MODEL_DIREC, self.model_name, 'params.csv')
 
     def get_info(self):
         with open(self.get_csv_path(), 'r') as csvfile:
             reader = csv.reader(csvfile)
             for row in reader:
-                return row
+                return [float(x) for x in row]
 
     def get_centers(self, prob_map):
+        plt.imshow(prob_map)
+        plt.show()
         if self.model_name == constants.PAPER_MODEL:
             joint = [1.05263158, 0.88571429]
             healthy = [1.05263158, 0.88571429]

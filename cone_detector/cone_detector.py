@@ -10,7 +10,7 @@ from .applyNetwork import locate_cones_with_model
 from .annotation_gui import Annotator
 from .output_writer import OutputWriter
 from .dataset import DataSet
-from .train import train_model
+from .train import Trainer
 
 
 def apply(data_folder, lut_csv, mname, manual, brightDark):
@@ -72,7 +72,8 @@ def data(data_folder, brightDark, data_name, mname):
     dataset.create_dataset(outputs)
 
 
-def train_new(train_data_name, val_data_name, mname, brightDark):
-    train_model(mname, train_data_name, brightDark, val_data_name)
+def train_new(train_data_name, val_data_name, mname, bright_dark):
+    trainer = Trainer(mname, train_data_name, bright_dark, val_data_name)
+    trainer.train_model(batch_size=4)
 
 

@@ -60,6 +60,8 @@ def location_array(centers, height, width):
     arr = np.zeros([height, width], dtype=np.uint8)
 
     for row, col in centers:
+        row = int(row)
+        col = int(col)
         arr[row, col] = 1
 
     return arr
