@@ -14,24 +14,24 @@ def main():
 
     if r.mode == r.APPLY:
         cone_detector.apply(
-            r.im_folder_var.get(),
-            r.lut_var.get(),
-            r.model_name_var.get(),
-            r.manually_annotate_var.get(),
-            r.bright_dark_var.get()
+            r.chosen_image_source_folder.get(),
+            r.chosen_lut_file.get(),
+            r.chosen_existing_model.get(),
+            r.fully_or_semi_automatic.get(),
+            r.bright_or_dark.get()
             )
     elif r.mode == r.DATA:
         cone_detector.data(
-            r.im_folder_var.get(),
-            r.bright_dark_var.get(),
-            r.new_data_name_var.get(),
-            r.model_name_var.get())
+            r.chosen_image_source_folder.get(),
+            r.bright_or_dark.get(),
+            r.chosen_new_data_name.get(),
+            r.chosen_existing_model.get())
     elif r.mode == r.TRAIN:
         cone_detector.train_new(
-            r.train_data_loc_var.get(),
-            r.val_data_loc_var.get(),
-            r.new_model_name_var.get(),
-            r.bright_dark_var.get())
+            r.chosen_train_data.get(),
+            r.chosen_val_data.get(),
+            r.chosen_new_model_name.get(),
+            r.bright_or_dark.get())
 
 
 if __name__ == '__main__':

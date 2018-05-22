@@ -12,7 +12,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Button
 from matplotlib.widgets import RadioButtons
-
+from .output import Output
 
 class Annotator:
     """
@@ -67,8 +67,8 @@ class Annotator:
     def get_next_image(self, first_image=False):
         # get next or first image
         self.current_image_id = 0 if first_image else self.current_image_id + 1
-        self.output_dict = self.raw_network_output[self.current_image_id]
-        im_name, image, centreList = self.output_dict['name'], self.output_dict['cropped'], self.output_dict['centres']
+        self.output = self.raw_network_output[self.current_image_id]
+        im_name, image, centreList = self.output.name, self.output.image, self.output.estimated_centers
 
         # get relavent data from the current output dict
         self.current_image_name = im_name
@@ -112,7 +112,6 @@ class Annotator:
             dist = np.sum(diff, axis=1)
             if self.current_centroids.shape[0] > 0:
                 closest_row_index = np.argmin(dist, axis=0)
-                closest_point = self.current_centroids[closest_row_index]
 
                 # if within 5 pixels of another point delete it
                 # this accounts for not having to click on the exact center
@@ -131,10 +130,10 @@ class Annotator:
         """Saves the annotations to a list, which is also saved as a pickle file"""
 
         # saving old and new information to a list
-        original_output_dict = self.raw_network_output[self.current_image_id]
-        original_output_dict['correctedCentres'] = self.current_centroids
-        original_output_dict['centres'] = self.network_centroids
-        self.outputs_after_annotation.append(original_output_dict)
+        output = Output(output=self.raw_network_output[self.current_image_id])
+        centres_as_tuple = [(x[0, 0], x[0,1]) for x in np.split(self.current_centroids, self.current_centroids.shape[0])]
+        output.set_actual_centers(centres_as_tuple)
+        self.outputs_after_annotation.append(output)
 
         # saving to temporary folder on windows or linux as pickle
         # we save the current image, with the raw data as well so we 

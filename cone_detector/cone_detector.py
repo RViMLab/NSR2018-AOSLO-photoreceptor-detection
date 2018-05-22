@@ -8,15 +8,9 @@ import os
 import pickle
 from .applyNetwork import locate_cones_with_model
 from .annotation_gui import Annotator
-from .output_builder import build_output
-from .build_tfrecord import write_dataset
+from .output_writer import OutputWriter
+from .dataset import DataSet
 from .train import train_model
-try:
-    import tensorflow
-except ImportError:
-    print('You must install tensorflow:\n https://www.tensorflow.org/install/')
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'
 
 
 def apply(data_folder, lut_csv, mname, manual, brightDark):
@@ -50,8 +44,8 @@ def apply(data_folder, lut_csv, mname, manual, brightDark):
 
     # create output
     print('Building Output')
-    corrected = manual
-    build_output(outputs, data_folder, lut_csv, corrected)
+    writer = OutputWriter(outputs, data_folder, lut_csv)
+    writer.write_output()
 
 def data(data_folder, brightDark, data_name, mname):
     """Build training data set"""
@@ -74,7 +68,8 @@ def data(data_folder, brightDark, data_name, mname):
         outputs = pickle.load(handle)['outputsAfterAnnotation']
 
     # build tfrecord
-    write_dataset(data_name, outputs)
+    dataset = DataSet(data_name)
+    dataset.create_dataset(outputs)
 
 
 def train_new(train_data_name, val_data_name, mname, brightDark):

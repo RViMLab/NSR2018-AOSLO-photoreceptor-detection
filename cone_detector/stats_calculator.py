@@ -13,14 +13,11 @@ from scipy.spatial.qhull import QhullError
 
 class StatsCalculator:
 
-    def __init__(self, single_image_dict, um_per_pix):
-        self.image_name = single_image_dict['name']
-        self.image = single_image_dict['cropped']
-        self.networkCentres = single_image_dict['centres']
-        try:
-            self.humanCentres = single_image_dict['correctedCentres']
-        except KeyError:
-            self.humanCentres = None
+    def __init__(self, output, um_per_pix):
+        self.image_name = output.name
+        self.image = output.image
+        self.networkCentres = output.estimated_centers
+        self.humanCentres = output.actual_centers
 
         self.um_per_pix = um_per_pix
         self.height, self.width = self.image.shape
@@ -167,7 +164,7 @@ class StatsCalculator:
             if centers[key] is None:
                 continue
             else:
-                arr = centers[key]
+                arr = np.stack(centers[key])
 
             # calculate stats
             density_locations = self.density_map(arr)

@@ -15,3 +15,4 @@ TIF = 'tif'
 
 # network patch size
 SIZE = 128
+BORDER_THRESH = 7

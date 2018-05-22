@@ -3,7 +3,7 @@ import numpy as np
 from .input_pipeline import pipeline, pre_process
 from .model import trainable_model
 from . import constants
-from .regional_max import get_centroids
+from .process_network_out import PostProcessor
 from sklearn.neighbors import KDTree
 import csv
 import os
@@ -127,7 +127,7 @@ def get_thresh_sigma(data_name, model_name, brightDark):
         for thresh in np.linspace(0., 0.9999, 30):
             for sigma in np.linspace(0., 4, 30):
                 for prob, actual_centers, im in label_prob_list:
-                    centers = get_centroids(prob, sigma, 0, thresh)
+                    centers = PostProcessor.get_centers_static(prob, sigma, thresh)
                     dice = get_center_dice(centers, actual_centers)
                     if dice > best_dice:
                         best_dice = dice

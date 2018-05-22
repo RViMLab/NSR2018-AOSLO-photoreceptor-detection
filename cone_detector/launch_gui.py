@@ -10,24 +10,31 @@ import os
 from tkinter.filedialog import askdirectory, askopenfilename
 from . import constants
 
+
+try:
+    import tensorflow
+except ImportError:
+    print('You must install tensorflow:\n https://www.tensorflow.org/install/')
+
 class ConeDetectorGUI:
     def __init__(self):
 
         # open window
         self.root = tk.Tk()
         self.root.title('Automatic Cone Detection')
-        # w, h = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
-        # self.root.geometry("%dx%d+0+0" % (w, h))
+        self.frame = None
 
         # store values asked for
-        self.im_folder_var = tk.StringVar()
-        self.lut_var = tk.StringVar()
-        self.model_name_var = tk.StringVar()
-        self.model_name_var.set(constants.NO_MODEL)
-        self.train_data_loc_var = tk.StringVar(value='Choose training data')
-        self.val_data_loc_var = tk.StringVar(value=constants.NO_DATA)
-        self.new_data_name_var = tk.StringVar(value='Give data a name')
-        self.new_model_name_var = tk.StringVar(value='Give model a name')
+        self.chosen_image_source_folder = tk.StringVar()
+        self.chosen_lut_file = tk.StringVar()
+        self.chosen_existing_model = tk.StringVar()
+        self.chosen_train_data = tk.StringVar()
+        self.chosen_val_data = tk.StringVar()
+        self.chosen_new_data_name = tk.StringVar()
+        self.chosen_new_model_name = tk.StringVar()
+        self.bright_or_dark = tk.BooleanVar()
+        self.fully_or_semi_automatic = tk.BooleanVar()
+
 
         self.mode = None
         self.APPLY = 0
@@ -50,7 +57,6 @@ class ConeDetectorGUI:
         train = tk.Button(self.frame, text="Train new model", command=self.train_network_gui)
         train.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-
     def apply_network_gui(self):
         self.mode = self.APPLY
         self.frame.destroy()
@@ -62,32 +68,30 @@ class ConeDetectorGUI:
             options = dict(
                 title='Choose folder of tifs',
             )
-            self.im_folder_var.set(askdirectory(**options))
+            self.chosen_image_source_folder.set(askdirectory(**options))
 
-        self.im_button = tk.Button(self.frame, text="Choose image folder", command=get_im_folder)
-        self.im_button.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        im_button = tk.Button(self.frame, text="Choose image folder", command=get_im_folder)
+        im_button.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # choosing csv file button
         def get_lut_file():
             options = dict(
                 title='Choose lut',
             )
-            self.lut_var.set(askopenfilename(**options))
+            self.chosen_lut_file.set(askopenfilename(**options))
 
-        self.lut_button = tk.Button(self.frame, text="Choose lut", command=get_lut_file)
-        self.lut_button.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        lut_button = tk.Button(self.frame, text="Choose lut", command=get_lut_file)
+        lut_button.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # some more options
-        self.bright_dark_var = tk.BooleanVar()
-        check_bright = tk.Checkbutton(self.frame,text="Bright on left", variable=self.bright_dark_var)
+        check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_or_dark)
         check_bright.grid(row=2, column=0, sticky=tk.W)
 
-        self.manually_annotate_var = tk.BooleanVar()
-        manual_anotate = tk.Checkbutton(self.frame, text="Manually annotate", variable=self.manually_annotate_var)
+        manual_anotate = tk.Checkbutton(self.frame, text="Manually annotate", variable=self.fully_or_semi_automatic)
         manual_anotate.grid(row=3, column=0, sticky=tk.W)
 
         models = os.listdir(constants.MODEL_DIREC)
-        option = tk.OptionMenu(self.frame, self.model_name_var, *models)
+        option = tk.OptionMenu(self.frame, self.chosen_existing_model, *models)
         option.grid(row=4, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         apply = tk.Button(self.frame, text="Run", command=self.run)
@@ -105,21 +109,21 @@ class ConeDetectorGUI:
             options = dict(
                 title='Choose folder of tifs',
             )
-            self.im_folder_var.set(askdirectory(**options))
+            self.chosen_image_source_folder.set(askdirectory(**options))
 
-        self.im_button = tk.Button(self.frame, text="Choose image folder", command=get_im_folder)
-        self.im_button.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        im_button = tk.Button(self.frame, text="Choose image folder", command=get_im_folder)
+        im_button.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        model_name = tk.Entry(self.frame, textvariable=self.new_data_name_var)
+        model_name = tk.Entry(self.frame, textvariable=self.chosen_new_data_name)
         model_name.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # some more options
-        self.bright_dark_var = tk.BooleanVar()
-        check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_dark_var)
+        check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_or_dark)
         check_bright.grid(row=2, column=0, sticky=tk.W)
 
         models = [x for x in os.listdir(constants.MODEL_DIREC) if x[0] != '.']
-        option = tk.OptionMenu(self.frame, self.model_name_var, *models)
+        models = models.insert(0, constants.NO_MODEL)
+        option = tk.OptionMenu(self.frame, self.chosen_existing_model, *models)
         option.grid(row=3, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         apply = tk.Button(self.frame, text="Run", command=self.run)
@@ -134,18 +138,18 @@ class ConeDetectorGUI:
 
         # only name not whole path
         datas = [x for x in os.listdir(constants.DATA_DIREC) if x[0] != '.']
-        option = tk.OptionMenu(self.frame, self.train_data_loc_var, *datas)
+        datas.insert(0, constants.NO_DATA)
+        option = tk.OptionMenu(self.frame, self.chosen_train_data, *datas)
         option.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         # only name not whole path
-        option_val = tk.OptionMenu(self.frame, self.val_data_loc_var, *datas)
+        option_val = tk.OptionMenu(self.frame, self.chosen_val_data, *datas)
         option_val.grid(row=1, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.model_name = tk.Entry(self.frame, textvariable=self.new_model_name_var)
-        self.model_name.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        model_name = tk.Entry(self.frame, textvariable=self.chosen_new_model_name)
+        model_name.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
-        self.bright_dark_var = tk.BooleanVar()
-        check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_dark_var)
+        check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_or_dark)
         check_bright.grid(row=3, column=0, sticky=tk.W)
 
         apply = tk.Button(self.frame, text="Run", command=self.run)
@@ -162,8 +166,4 @@ class ConeDetectorGUI:
         self.root.destroy()
 
     def apply_network(self):
-        self.im_folder = self.im_folder_var.get()
-        self.lut_file = self.lut_var.get()
-        self.bright_dark = self.bright_dark_var.get()
-        self.manually_annotate = self.manually_annotate_var.get()
         self.close_builder()
