@@ -67,11 +67,13 @@ After running cone_detector from a terminal a gui will launch asking what you wa
 * Applies model to tifs to estimate locations
 * Can simply trust the algorithm, or manually correct each image
 * Outputs locations and stats for each image
+
 ### Build training data sets for training new models
 * Required: folder of tifs
 * Create labeled data in format used by tensorflow to train new models
 * Can select a model to aid the annotations, or do completely by hand
 * Will save data set as tfrecord, to train new models
+
 ### Train new models
 * Required: training data set built using cone_detector
 * Optional: a validation data set created using cone_detector
