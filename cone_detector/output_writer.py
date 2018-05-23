@@ -41,7 +41,7 @@ class OutputWriter:
             reader = csv.reader(csv_file)
             for row in reader:
                 row = [x for x in row if not x == '']
-                um_per_pix_dict[row[0]] = float(row[1])
+                um_per_pix_dict[row[0].lower()] = float(row[1])
         self.um_to_pix = um_per_pix_dict
 
     def has_been_corrected(self):
@@ -127,7 +127,7 @@ class OutputWriter:
 
     def save_stats(self, output):
 
-        um_to_px = self.um_to_pix[self.get_subject_id(output)]
+        um_to_px = self.um_to_pix[self.get_subject_id(output).lower()]
         calculator = StatsCalculator(output, um_to_px)
         stats = calculator.get_image_stats()
         OutputWriter.stats_csv(stats, self.output_folder)
