@@ -28,8 +28,6 @@ class PostProcessor:
                 return [float(x) for x in row]
 
     def get_centers(self, prob_map):
-        plt.imshow(prob_map)
-        plt.show()
         if self.model_name == constants.PAPER_MODEL:
             joint = [1.05263158, 0.88571429]
             healthy = [1.05263158, 0.88571429]

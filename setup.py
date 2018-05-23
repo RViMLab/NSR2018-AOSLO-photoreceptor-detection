@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='cone_detector',
-      version='0.2.0',
+      version='0.2.1',
       description='Automatic cone detection software',
       url='https://gitlab.com/rmapbda/ConeDetector',
       author='Benjamin Davidson',

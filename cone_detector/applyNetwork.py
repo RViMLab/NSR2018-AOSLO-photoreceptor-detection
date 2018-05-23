@@ -13,7 +13,7 @@ from .process_network_out import PostProcessor
 from . import constants
 from .output import Output
 from . import utilities
-import matplotlib.pyplot as plt
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 def run_through_nothing(image_folder, outputs, size):
 
