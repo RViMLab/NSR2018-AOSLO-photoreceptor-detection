@@ -42,6 +42,7 @@ class OutputWriter:
             for row in reader:
                 row = [x for x in row if not x == '']
                 um_per_pix_dict[row[0].lower()] = float(row[1])
+        print(um_per_pix_dict)
         self.um_to_pix = um_per_pix_dict
 
     def has_been_corrected(self):
