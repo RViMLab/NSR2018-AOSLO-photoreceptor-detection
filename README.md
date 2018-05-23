@@ -32,14 +32,10 @@ To install and use requires:
 ### Installing
 1. Download the git repository to a folder of your choice, /path/to/code/ConeDetector
 
-2. Install Python package using pip.\
-Ubuntu```pip install /path/to/code/ConeDetector```\
-Windows```python -m pip install /path/to/code/ConeDetector```
+2. Install Python package using pip. Ubuntu: ```pip install /path/to/code/ConeDetector```; Windows```python -m pip install /path/to/code/ConeDetector```
 
 3. 
-    * If you do not have a gpu, pip install tensorflow:\
-Ubuntu```pip install tensorflow```\
-Windows```python -m pip install tensorflow```
+    * If you do not have a gpu, pip install tensorflow: Ubuntu```pip install tensorflow```; Windows```python -m pip install tensorflow```
     * If you do have a gpu, follow these [instructions](https://www.tensorflow.org/install/) to install tensorflow-gpu
     
 If you just want to apply the model from the paper, you only need tensorflow, not tensorflow-gpu. The gpu version is needed if you want to train new models in any reassonable amount of time.
