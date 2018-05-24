@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from .input_pipeline import pipeline, pre_process
-from .model import trainable_model
+from .model import trainable_model, forward_network_softmax
 from . import constants
 from . import utilities
 from .process_network_out import PostProcessor
@@ -171,7 +171,7 @@ class Trainer:
         with tf.Graph().as_default():
             with tf.Session() as sess:
                 image_place = tf.placeholder(dtype=tf.float32, shape=[1, constants.SIZE, constants.SIZE, 1])
-                _, prob = trainable_model(image_place, None, brightDark=self.bright_dark, optimize=False)
+                prob = forward_network_softmax(image_place, bright_dark=self.bright_dark)
 
                 saver = tf.train.Saver()
                 saver.restore(sess, model_location)
@@ -206,7 +206,7 @@ class Trainer:
                     optimizer = trainable_model(image_batch, label_batch, brightDark=self.bright_dark)
                     scope.reuse_variables()
                     if self.have_val_data:
-                        v_labels, v_probs = trainable_model(v_image_batch, v_label_batch, brightDark=self.bright_dark, optimize=False)
+                        v_probs = forward_network_softmax(v_image_batch, bright_dark=self.bright_dark)
 
                     # initialisation stuff
                     init_op = tf.group(
@@ -234,7 +234,7 @@ class Trainer:
                             if i%iterations_in_train_epoch == 0 and self.have_val_data:
                                 tpfpfn = np.zeros([3])
                                 for j in range(iterations_in_val_epoch):
-                                    labs, probs = sess.run([v_labels, v_probs])
+                                    labs, probs = sess.run([v_label_batch, v_probs])
                                     tpfpfn += Trainer.tpfpfn_array(labs, probs, batch_size)
                                 dice = Trainer.calc_dice(tpfpfn)
                                 if dice > best_dice:

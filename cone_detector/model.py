@@ -6,35 +6,35 @@
 
 from .model_components import *
 
-def DICE_CONV_MD_32U2L_tanh(image, brightDark=True):
+def forward_network_logits(inputs, bright_dark=True):
     """
-        Builds the graph for the best model in the paper
-        M-C-M
+            Builds the graph for the best model in the paper
+            M-C-M
 
-        Input:
-            image shape=(b,s,s,1)
-                AOSLO image crop
-            labels shape=(b,s,s,2)
-                pixel classifications
-            optimize
-                whether or not to return optmiser
-            retrain_output
-                if true prevents gradient updates
-                to all layers except the fully connected
+            Input:
+                image shape=(b,s,s,1)
+                    AOSLO image crop
+                labels shape=(b,s,s,2)
+                    pixel classifications
+                optimize
+                    whether or not to return optmiser
+                retrain_output
+                    if true prevents gradient updates
+                    to all layers except the fully connected
 
-        Output:
-            see output in model_components.py
-    """
-    _, height, width, channels = image.get_shape().as_list()
+            Output:
+                (bss, 2
+        """
+    _, height, width, channels = inputs.get_shape().as_list()
     units = 32
 
     # flip so bright is on left if we have to
-    if not brightDark:
-        image = tf.image.flip_left_right(image)
+    if not bright_dark:
+        inputs = tf.image.flip_left_right(inputs)
 
     # Conv layer
     with tf.variable_scope('conv_0'):
-        conv = conv_layer(image)
+        conv = conv_layer(inputs)
 
     # MDLSTM layer
     with tf.variable_scope('MD_0'):
@@ -52,44 +52,40 @@ def DICE_CONV_MD_32U2L_tanh(image, brightDark=True):
         MD = tf.transpose(MD, [0, 1, 2, 4, 3])
         MD = tf.reshape(MD, [-1, height, width, 4 * units])
 
-    # out is (b,s,s,2) and is the raw logits
+    # out is (bss,2) and is the raw logits
     out = fully_connected_layer(MD)
 
+    return out
 
-    # depending on optimize return different outputs
-    # convert scores to probabilities
-    probs = tf.nn.softmax(out)
+
+def forward_network_softmax(inputs, bright_dark):
+    _, height, width, channels = inputs.get_shape().as_list()
+    logits = forward_network_logits(inputs, bright_dark)
+    probs = tf.nn.softmax(logits)
 
     # flip so bright is on left if we have to
-    if not brightDark:
+    if not bright_dark:
         probs = tf.reshape(probs, [-1, height, width, 2])
         probs = tf.image.flip_left_right(probs)
         probs = tf.reshape(probs, [-1, 2])
 
-    # if you give images of shape (b,s,s,1) then
-    # probs is (b,s,s,1) and each value of probs
-    # is the probability that the corresponding
-    # pixel belongs to a cone
-    prob_of_cell = probs[:, 1]
-    return image, out, prob_of_cell
+    return probs[:, 1]
 
-def trainable_model(image, segmentation, brightDark, optimize=True):
-    image, out, prob = DICE_CONV_MD_32U2L_tanh(image, brightDark)
 
-    if optimize:
-        # weighted loss using ratio
-        loss, reshaped_labels = get_dice_loss(out, segmentation)
+def trainable_model(inputs, segmentation, bright_dark):
+    logits = forward_network_logits(inputs, bright_dark)
 
-        optimizer = tf.train.RMSPropOptimizer(1e-3)
-        gradients, variables = zip(*optimizer.compute_gradients(loss))
+    # weighted loss using ratio
+    loss, reshaped_labels = get_dice_loss(logits, segmentation)
 
-        # occasionally gradients would explode
-        # tells us if there are NaN values in any tensors
-        grad_checks = [tf.check_numerics(grad, 'Gradients exploding') for grad in gradients if grad is not None]
-        with tf.control_dependencies(grad_checks):
-            optimize = optimizer.apply_gradients(zip(gradients, variables))
+    optimizer = tf.train.RMSPropOptimizer(1e-3)
+    gradients, variables = zip(*optimizer.compute_gradients(loss))
 
-        return optimize
+    # occasionally gradients would explode
+    # tells us if there are NaN values in any tensors
+    grad_checks = [tf.check_numerics(grad, 'Gradients exploding') for grad in gradients if grad is not None]
+    with tf.control_dependencies(grad_checks):
+        optimize = optimizer.apply_gradients(zip(gradients, variables))
 
-    else:
-        return segmentation, prob
+    return optimize
+

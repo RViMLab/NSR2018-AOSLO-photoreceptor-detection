@@ -152,7 +152,7 @@ def fully_connected_layer(inp):
         Input
             must be (b,h,w,c)
         Output
-            (b,h,w,2)
+            (bhw,2)
 
     """
 

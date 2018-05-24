@@ -1,79 +1,59 @@
-# Copyright (C) Benjamin Davidson, Inc - All Rights Reserved
-# Unauthorized copying of this file, without the authors written permission
-# via any medium is strictly prohibited
-# Proprietary and confidential
-# Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
-
+import tensorflow as tf
+import numpy as np
 import os
-import pickle
-from .applyNetwork import locate_cones_with_model
-from .annotation_gui import Annotator
-from .output_writer import OutputWriter
-from .dataset import DataSet
-from .train import Trainer
+
+from . import model
+from . import utilities
+from . import process_network_out
+from . import constants
+from . import image_folder_reader
+
+class ConeDetector:
+
+    def __init__(self, size, bright_dark, model_name):
+        self.size = size
+        self.post_processor = process_network_out.PostProcessor(model_name)
+        self.model_name = model_name
+        self.prob_of_cone = None
+        self.graph = tf.Graph()
+        self.input_placeholder = None
+        self.init_op = None
+        self.saver = None
+        self.build_graph(size, bright_dark)
+        self.sess = tf.Session(graph=self.graph)
+        self.initialize_vars()
+        self.restore()
+
+    def initialize_vars(self):
+        self.sess.run(self.init_op)
+
+    def restore(self,):
+        model_location = os.path.join(constants.MODEL_DIREC, self.model_name, 'model')
+        self.saver.restore(self.sess, model_location)
+
+    def build_graph(self, size, bright_dark):
+        with self.graph.as_default():
+            self.input_placeholder = tf.placeholder(dtype=tf.float32, shape=[1, size, size, 1])
+            self.prob_of_cone = model.forward_network_softmax(self.input_placeholder, bright_dark)
+            self.init_op = tf.global_variables_initializer()
+            self.saver = tf.train.Saver()
+
+    def pre_process_numpy(self, image):
+        cropped = utilities.crop_center(image, self.size)
+        centered = cropped - np.mean(cropped)
+        centered = centered[None,:,:,None]
+        return centered, cropped
+
+    def network(self, image):
+        centered, cropped = self.pre_process_numpy(image)
+        feed_dict = {self.input_placeholder:centered}
+        prob_map = self.sess.run(self.prob_of_cone, feed_dict=feed_dict)
+        prob_map = np.reshape(prob_map, [self.size, self.size])
+        return prob_map, cropped
 
 
-def apply(data_folder, lut_csv, mname, manual, brightDark):
-    """
-        - applies network to all tifs in data_folder
-        - runs an interactive gui on these results for cleanup
-            this saves its output as a pickle file
-        - load pickle file and run metrics on it
-    """
+    def get_centers(self, prob_map):
+        return self.post_processor.get_centers(prob_map)
 
-    # apply network and generate estimated
-    print('Applying method to data')
-    outputs = locate_cones_with_model(data_folder, brightDark, mname)
-
-    # will manually correct in gui
-    if manual==True:
-        # manually correct
-        Annotator(outputs)
-
-        # use corrected
-        if os.name == 'nt':
-            temp_dir = 'C:\\Windows\\Temp'
-        else:
-            temp_dir = '/tmp'
-
-        filename = os.path.join(temp_dir, 'annotationState.pickle')
-        with open(filename, 'rb') as handle:
-            outputs = pickle.load(handle)['outputsAfterAnnotation']
-
-
-
-    # create output
-    print('Building Output')
-    writer = OutputWriter(outputs, data_folder, lut_csv)
-    writer.write_output()
-
-def data(data_folder, brightDark, data_name, mname):
-    """Build training data set"""
-
-    # get network output, if mname is none then returns empty
-    # centers
-    outputs = locate_cones_with_model(data_folder, brightDark, mname)
-
-    # manually correct
-    Annotator(outputs)
-
-    # use corrected
-    if os.name == 'nt':
-        temp_dir = 'C:\\Windows\\Temp'
-    else:
-        temp_dir = '/tmp'
-
-    filename = os.path.join(temp_dir, 'annotationState.pickle')
-    with open(filename, 'rb') as handle:
-        outputs = pickle.load(handle)['outputsAfterAnnotation']
-
-    # build tfrecord
-    dataset = DataSet(data_name)
-    dataset.create_dataset(outputs)
-
-
-def train_new(train_data_name, val_data_name, mname, bright_dark):
-    trainer = Trainer(mname, train_data_name, bright_dark, val_data_name)
-    trainer.train_model(batch_size=4)
-
-
+    def close_session(self):
+        self.sess.close()
