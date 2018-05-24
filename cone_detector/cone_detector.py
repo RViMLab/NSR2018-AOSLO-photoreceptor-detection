@@ -51,7 +51,6 @@ class ConeDetector:
         prob_map = np.reshape(prob_map, [self.size, self.size])
         return prob_map, cropped
 
-
     def get_centers(self, prob_map):
         return self.post_processor.get_centers(prob_map)
 
