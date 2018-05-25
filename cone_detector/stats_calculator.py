@@ -51,7 +51,6 @@ class StatsCalculator:
             yPoints = np.array(yPoints)
             return polyArea(xPoints, yPoints)
 
-
         bounded = np.zeros(arr.shape[0], dtype=np.bool)
         try:
             vor = Voronoi(arr)
@@ -158,7 +157,7 @@ class StatsCalculator:
         final_stats = {'name': self.image_name.replace(' ', '')}
 
         # human or alg centres
-        centers = {'alg':self.networkCentres, 'hum':self.humanCentres}
+        centers = {'alg': self.networkCentres, 'hum': self.humanCentres}
 
         for key in centers:
             if centers[key] is None:

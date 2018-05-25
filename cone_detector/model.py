@@ -6,6 +6,7 @@
 
 from .model_components import *
 
+
 def forward_network_logits(inputs, bright_dark=True):
     """
             Builds the graph for the best model in the paper
@@ -88,4 +89,3 @@ def trainable_model(inputs, segmentation, bright_dark):
         optimize = optimizer.apply_gradients(zip(gradients, variables))
 
     return optimize
-

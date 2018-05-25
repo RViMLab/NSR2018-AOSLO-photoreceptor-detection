@@ -1,11 +1,13 @@
-import tensorflow as tf
-import numpy as np
-from . import model
-from . import constants
-from .process_network_out import PostProcessor
-from sklearn.neighbors import KDTree
 import csv
 import os
+
+import numpy as np
+import tensorflow as tf
+from sklearn.neighbors import KDTree
+
+from . import constants
+from . import model
+from .process_network_out import PostProcessor
 
 
 class DetectorTrainer:
@@ -15,11 +17,15 @@ class DetectorTrainer:
         self.model_direc = os.path.join(constants.MODEL_DIREC, model_name)
         self.model_path = os.path.join(self.model_direc, 'model')
         self.train_data_path = os.path.join(constants.DATA_DIREC, train_data_name, 'data.tfrecord')
+        if val_data_name == constants.NO_DATA:
+            raise ValueError('You need to specify validation data')
+
         self.val_data_path = os.path.join(constants.DATA_DIREC, val_data_name, 'data.tfrecord')
 
         self.bright_dark = bright_dark
         self.batch_size = batch_size
-        self.num_epochs = 300
+        self.burn_in = 5
+        self.kill_after_stall = 20
 
         self.graph = tf.Graph()
         self.sess = tf.Session(graph=self.graph)
@@ -192,10 +198,18 @@ class DetectorTrainer:
         val_iterator, probs, val_segmentation = self.build_validator()
         self.sess.run(init_op)
         best_dice = 0.
+        stalled = 0
 
-        for epoch in range(self.num_epochs):
+        while True:
             self.run_training_epoch(train_iterator, optimizer)
-            best_dice = self.run_validation_epoch(probs,val_segmentation, val_iterator, best_dice, saver)
+            new_best_dice = self.run_validation_epoch(probs, val_segmentation, val_iterator, best_dice, saver)
+            if new_best_dice == best_dice:
+                stalled += 1
+            else:
+                best_dice = new_best_dice
+                stalled = 0
+            if stalled == self.kill_after_stall:
+                break
 
         tf.reset_default_graph()
         self.graph = tf.Graph()
@@ -324,4 +338,3 @@ class DetectorTrainer:
         centers_and_probs = self.collect_centers_and_prob_maps()
         thresh, sigma = self.calculate_best_from_list(centers_and_probs)
         self.write_hyper(thresh, sigma)
-

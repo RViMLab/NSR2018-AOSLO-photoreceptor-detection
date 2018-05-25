@@ -20,4 +20,4 @@ setup(name='cone_detector',
           'console_scripts': ['cone_detector=cone_detector.__main__:main'],
       },
       keywords='AOSLO photoreceptor localisation',
-    )
+      )

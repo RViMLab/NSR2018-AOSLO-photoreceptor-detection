@@ -5,20 +5,20 @@
 # Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 
 
-import tkinter as tk
 import os
+import tkinter as tk
 from tkinter.filedialog import askdirectory, askopenfilename
-from . import constants
 
+from . import constants
 
 try:
     import tensorflow
 except ImportError:
     print('You must install tensorflow:\n https://www.tensorflow.org/install/')
 
+
 class ConeDetectorGUI:
     def __init__(self):
-
         # open window
         self.root = tk.Tk()
         self.root.title('Automatic Cone Detection')
@@ -41,7 +41,6 @@ class ConeDetectorGUI:
 
         self.bright_or_dark = tk.BooleanVar()
         self.fully_or_semi_automatic = tk.BooleanVar()
-
 
         self.mode = None
         self.APPLY = 0

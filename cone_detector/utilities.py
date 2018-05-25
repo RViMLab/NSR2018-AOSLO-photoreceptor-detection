@@ -19,7 +19,7 @@ def list_to_array(h, w, center_list):
 
 def array_to_list(arr):
     non_zero = np.transpose(np.nonzero(arr > 0))
-    non_zero_list = [(x[0,0], x[0,1]) for x in np.split(non_zero, non_zero.shape[0], axis=0)]
+    non_zero_list = [(x[0, 0], x[0, 1]) for x in np.split(non_zero, non_zero.shape[0], axis=0)]
     return non_zero_list
 
 
@@ -32,7 +32,6 @@ def array_to_grayscale(array):
 
 
 def expand_centers(centers, height, width, radius=5):
-
     y, x = np.ogrid[-radius:radius + 1, -radius:radius + 1]
     disk = x ** 2 + y ** 2 <= radius ** 2
     disk = disk.astype(np.uint8)
@@ -56,7 +55,6 @@ def expand_centers(centers, height, width, radius=5):
 
 
 def location_array(centers, height, width):
-
     arr = np.zeros([height, width], dtype=np.uint8)
 
     for row, col in centers:

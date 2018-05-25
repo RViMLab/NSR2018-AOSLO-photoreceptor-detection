@@ -13,7 +13,6 @@ import numpy as np
 from PIL import Image
 
 from . import utilities
-
 from .stats_calculator import StatsCalculator
 
 

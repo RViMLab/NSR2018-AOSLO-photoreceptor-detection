@@ -12,7 +12,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Button
 from matplotlib.widgets import RadioButtons
+
 from .output import Output
+
 
 class Annotator:
     """
@@ -131,7 +133,8 @@ class Annotator:
 
         # saving old and new information to a list
         output = Output(output=self.raw_network_output[self.current_image_id])
-        centres_as_tuple = [(x[0, 0], x[0,1]) for x in np.split(self.current_centroids, self.current_centroids.shape[0])]
+        centres_as_tuple = [(x[0, 0], x[0, 1]) for x in
+                            np.split(self.current_centroids, self.current_centroids.shape[0])]
         output.set_actual_centers(centres_as_tuple)
         self.outputs_after_annotation.append(output)
 

@@ -1,11 +1,12 @@
-import tensorflow as tf
-import numpy as np
 import os
 
-from . import model
-from . import utilities
-from . import process_network_out
+import numpy as np
+import tensorflow as tf
+
 from . import constants
+from . import model
+from . import process_network_out
+from . import utilities
 
 
 class ConeDetector:
@@ -27,7 +28,7 @@ class ConeDetector:
     def initialize_vars(self):
         self.sess.run(self.init_op)
 
-    def restore(self,):
+    def restore(self, ):
         model_location = os.path.join(constants.MODEL_DIREC, self.model_name, 'model')
         self.saver.restore(self.sess, model_location)
 
@@ -41,12 +42,12 @@ class ConeDetector:
     def pre_process_numpy(self, image):
         cropped = utilities.crop_center(image, self.size)
         centered = cropped - np.mean(cropped)
-        centered = centered[None,:,:,None]
+        centered = centered[None, :, :, None]
         return centered, cropped
 
     def network(self, image):
         centered, cropped = self.pre_process_numpy(image)
-        feed_dict = {self.input_placeholder:centered}
+        feed_dict = {self.input_placeholder: centered}
         prob_map = self.sess.run(self.prob_of_cone, feed_dict=feed_dict)
         prob_map = np.reshape(prob_map, [self.size, self.size])
 

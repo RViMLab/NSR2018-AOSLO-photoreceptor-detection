@@ -1,12 +1,13 @@
-import os
 import csv
-import tensorflow as tf
+import os
+
 import numpy as np
+import tensorflow as tf
 
 from . import constants
 
-class DataSet:
 
+class DataSet:
     data_file = 'data.tfrecord'
     info_file = 'info.csv'
 

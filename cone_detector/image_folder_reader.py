@@ -5,8 +5,10 @@
 # Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 
 import os
+
 import numpy as np
 from PIL import Image
+
 from . import constants
 
 

@@ -1,6 +1,8 @@
 import numpy as np
 import tensorflow as tf
-from . import  utilities
+
+from . import utilities
+
 
 class Output:
     def __init__(self, **kwargs):
@@ -11,7 +13,7 @@ class Output:
             self.segmentation = output.segmentation
             self.actual_centers = output.actual_centers
             self.estimated_centers = output.estimated_centers
-        else :
+        else:
             self.name = kwargs['name']
             self.image = kwargs['image']
             self.segmentation = None
@@ -59,7 +61,7 @@ class Output:
             'image': self.image.astype(np.uint8),
             'height': np.array(self.image.shape[0], dtype=np.uint8),
             'width': np.array(self.image.shape[1], dtype=np.uint8),
-            'location':arr}
+            'location': arr}
 
         def _bytes_feature(value):
             return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
@@ -69,4 +71,3 @@ class Output:
 
         tf_record = tf.train.Example(features=tf.train.Features(feature=features))
         return tf_record
-

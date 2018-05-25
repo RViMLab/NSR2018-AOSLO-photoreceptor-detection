@@ -6,17 +6,16 @@
 import os
 import pickle
 
-
-from .annotation_gui import Annotator
-from .output_writer import OutputWriter
-from .dataset import DataSet
-from .detector_trainer import DetectorTrainer
-from . import launch_gui
-from . import image_folder_reader
+from . import cone_detector
 from . import constants
+from . import image_folder_reader
+from . import launch_gui
 from . import output
 from . import utilities
-from . import cone_detector
+from .annotation_gui import Annotator
+from .dataset import DataSet
+from .detector_trainer import DetectorTrainer
+from .output_writer import OutputWriter
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -85,8 +84,6 @@ def apply(data_folder, lut_csv, model_name, manual, brightDark):
         with open(filename, 'rb') as handle:
             outputs = pickle.load(handle)['outputsAfterAnnotation']
 
-
-
     # create output
     print('Building Output')
     writer = OutputWriter(outputs, data_folder, lut_csv)
@@ -135,7 +132,7 @@ def main():
             r.chosen_existing_model.get(),
             r.fully_or_semi_automatic.get(),
             r.bright_or_dark.get()
-            )
+        )
     elif r.mode == r.DATA:
         data(
             r.chosen_image_source_folder.get(),
