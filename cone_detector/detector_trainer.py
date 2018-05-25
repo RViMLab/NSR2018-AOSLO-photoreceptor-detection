@@ -232,7 +232,7 @@ class DetectorTrainer:
         return image, location, iterator
 
     def build_hyper_graph(self):
-        with self.graph().as_default():
+        with self.graph.as_default():
             image, location, iterator = self.build_hyper_param_inputs()
             probs = model.forward_network_softmax(image, self.bright_dark)
             probs = tf.reshape(probs, [constants.SIZE, constants.SIZE])
@@ -250,7 +250,7 @@ class DetectorTrainer:
             try:
                 cone_map, location_array = self.sess.run([probs, location])
                 location_array = np.transpose(np.nonzero(location_array > 0))
-                centers_and_maps.append(cone_map, location_array)
+                centers_and_maps.append((cone_map, location_array))
             except tf.errors.OutOfRangeError:
                 break
         return centers_and_maps
@@ -258,6 +258,8 @@ class DetectorTrainer:
     @staticmethod
     def calculate_best_from_list(centers_and_maps):
         best_dice = 0.
+        best_sigma = 0.
+        best_thresh = 0.
         for thresh in np.linspace(0., 0.9999, 30):
             for sigma in np.linspace(0., 4, 30):
                 for prob, actual_centers in centers_and_maps:
