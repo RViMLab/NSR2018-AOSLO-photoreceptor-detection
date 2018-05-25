@@ -6,7 +6,7 @@ from . import model
 from . import utilities
 from . import process_network_out
 from . import constants
-from . import image_folder_reader
+
 
 class ConeDetector:
 
@@ -49,6 +49,7 @@ class ConeDetector:
         feed_dict = {self.input_placeholder:centered}
         prob_map = self.sess.run(self.prob_of_cone, feed_dict=feed_dict)
         prob_map = np.reshape(prob_map, [self.size, self.size])
+
         return prob_map, cropped
 
     def get_centers(self, prob_map):

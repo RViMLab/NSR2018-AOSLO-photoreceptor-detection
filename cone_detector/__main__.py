@@ -10,7 +10,7 @@ import pickle
 from .annotation_gui import Annotator
 from .output_writer import OutputWriter
 from .dataset import DataSet
-from .train import Trainer
+from .detector_trainer import DetectorTrainer
 from . import launch_gui
 from . import image_folder_reader
 from . import constants
@@ -118,9 +118,9 @@ def data(data_folder, brightDark, data_name, model_name):
     dataset.create_dataset(outputs)
 
 
-def train_new(train_data_name, val_data_name, mname, bright_dark):
-    trainer = Trainer(mname, train_data_name, bright_dark, val_data_name)
-    trainer.train_model(batch_size=4)
+def train_new(train_data_name, val_data_name, model_name, bright_dark):
+    trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark, batch_size=4)
+    trainer.train()
 
 
 def main():

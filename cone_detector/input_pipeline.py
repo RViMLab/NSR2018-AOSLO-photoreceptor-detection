@@ -40,6 +40,7 @@ def flip(image_tensor, annotation_tensor):
     
     return randomly_flipped_img, randomly_flipped_annotation
 
+
 def read_and_decode(filename_queue, ):
 
     # create reader
