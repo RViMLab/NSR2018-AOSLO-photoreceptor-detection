@@ -1,9 +1,7 @@
 import tensorflow as tf
 import numpy as np
-from .input_pipeline import pipeline, pre_process
 from . import model
 from . import constants
-from . import utilities
 from .process_network_out import PostProcessor
 from sklearn.neighbors import KDTree
 import csv
