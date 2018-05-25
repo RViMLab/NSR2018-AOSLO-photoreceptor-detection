@@ -76,7 +76,7 @@ After running cone_detector from a terminal a gui will launch asking what you wa
 
 ### Train new models
 * Required: training data set built using cone_detector
-* Optional: a validation data set created using cone_detector
+* Required: a validation data set created using cone_detector
 * Will run same training regime described in the paper (if validation data given), otherwise will train for 100 epochs
 * Saves new model, which can be applied in cone_detector
 
