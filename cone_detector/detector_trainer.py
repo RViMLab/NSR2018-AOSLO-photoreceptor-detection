@@ -12,7 +12,7 @@ from .process_network_out import PostProcessor
 
 class DetectorTrainer:
 
-    def __init__(self, model_name, train_data_name, val_data_name, bright_dark, batch_size=4):
+    def __init__(self, model_name, train_data_name, val_data_name, bright_dark, batch_size=8):
         self.model_name = model_name
         self.model_direc = os.path.join(constants.MODEL_DIREC, model_name)
         self.model_path = os.path.join(self.model_direc, 'model')

@@ -1,8 +1,3 @@
-# Copyright (C) Benjamin Davidson, Inc - All Rights Reserved
-# Unauthorized copying of this file, without the authors written permission
-# via any medium is strictly prohibited
-# Proprietary and confidential
-# Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
 import os
 import pickle
 
@@ -116,7 +111,7 @@ def data(data_folder, brightDark, data_name, model_name):
 
 
 def train_new(train_data_name, val_data_name, model_name, bright_dark):
-    trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark, batch_size=4)
+    trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark)
     trainer.train()
 
 

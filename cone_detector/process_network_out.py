@@ -1,17 +1,9 @@
-# Copyright (C) Benjamin Davidson, Inc - All Rights Reserved
-# Unauthorized copying of this file, without the authors written permission
-# via any medium is strictly prohibited
-# Proprietary and confidential
-# Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
-
-import csv
-import os
-
 import scipy.ndimage.filters as filters
 from skimage.measure import regionprops, label
-
 from . import constants
 from . import utilities
+import os
+import csv
 
 
 class PostProcessor:
@@ -57,7 +49,7 @@ class PostProcessor:
     @staticmethod
     def reject_weak(mask, value_array, thresh):
         centers = [x.centroid for x in regionprops(label(mask), intensity_image=value_array) if
-                   x.max_intensity > thresh]
+                     x.max_intensity > thresh]
         return centers
 
     @staticmethod

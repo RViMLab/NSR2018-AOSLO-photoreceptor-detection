@@ -1,24 +1,17 @@
-# Copyright (C) Benjamin Davidson, Inc - All Rights Reserved
-# Unauthorized copying of this file, without the authors written permission
-# via any medium is strictly prohibited
-# Proprietary and confidential
-# Written by Benjamin Davidson <ben.davidson6@googlemail.com>, January 2018
-
-
-import os
 import tkinter as tk
+import os
 from tkinter.filedialog import askdirectory, askopenfilename
-
 from . import constants
+
 
 try:
     import tensorflow
 except ImportError:
     print('You must install tensorflow:\n https://www.tensorflow.org/install/')
 
-
 class ConeDetectorGUI:
     def __init__(self):
+
         # open window
         self.root = tk.Tk()
         self.root.title('Automatic Cone Detection')
@@ -41,6 +34,7 @@ class ConeDetectorGUI:
 
         self.bright_or_dark = tk.BooleanVar()
         self.fully_or_semi_automatic = tk.BooleanVar()
+
 
         self.mode = None
         self.APPLY = 0
