@@ -114,7 +114,7 @@ def data(data_folder, brightDark, data_name, model_name):
 
 
 def train_new(train_data_name, val_data_name, model_name, bright_dark):
-    trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark, batch_size=4)
+    trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark)
     trainer.train()
 
 
