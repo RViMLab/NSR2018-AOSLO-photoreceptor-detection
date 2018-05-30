@@ -52,7 +52,7 @@ def locate_cones_with_model(data_folder, bright_dark, model_name):
     return outputs
 
 
-def apply(data_folder, lut_csv, model_name, manual, brightDark):
+def apply(data_folder, target_folder, lut_csv, model_name, manual, brightDark):
     """
         - applies network to all tifs in data_folder
         - runs an interactive gui on these results for cleanup
@@ -81,7 +81,7 @@ def apply(data_folder, lut_csv, model_name, manual, brightDark):
 
     # create output
     print('Building Output')
-    writer = OutputWriter(outputs, data_folder, lut_csv)
+    writer = OutputWriter(outputs, data_folder, lut_csv, target_folder)
     writer.write_output()
 
 
@@ -112,7 +112,7 @@ def data(data_folder, brightDark, data_name, model_name):
 
 def train_new(train_data_name, val_data_name, model_name, bright_dark):
     trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark)
-    trainer.train()
+    trainer.train_network()
 
 
 def main():
@@ -123,6 +123,7 @@ def main():
     if r.mode == r.APPLY:
         apply(
             r.chosen_image_source_folder.get(),
+            r.chosen_target_folder.get(),
             r.chosen_lut_file.get(),
             r.chosen_existing_model.get(),
             r.fully_or_semi_automatic.get(),

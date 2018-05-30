@@ -12,8 +12,9 @@ from .stats_calculator import StatsCalculator
 
 class OutputWriter:
 
-    def __init__(self, outputs, data_folder, lut_csv):
+    def __init__(self, outputs, data_folder, lut_csv, target_folder):
         self.lut_name = lut_csv
+        self.target_folder = target_folder
         self.data_folder = data_folder
         self.um_to_pix = None
         self.outputs = outputs
@@ -41,9 +42,8 @@ class OutputWriter:
         return self.outputs[0].actual_centers is not None
 
     def prepare_folders(self):
-        cwd = os.getcwd()
         now = str(datetime.datetime.now()).replace(':', '')
-        self.output_folder = os.path.join(cwd, str(now))
+        self.output_folder = os.path.join(self.target_folder, str(now))
         self.alg_figure_folder = os.path.join(self.output_folder, 'algorithmFigures')
         self.alg_folder = os.path.join(self.output_folder, 'algorithmMarkers')
         self.image_folder = os.path.join(self.output_folder, 'images')

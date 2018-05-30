@@ -19,6 +19,7 @@ class ConeDetectorGUI:
 
         # store values asked for
         self.chosen_image_source_folder = tk.StringVar()
+        self.chosen_target_folder = tk.StringVar()
         self.chosen_lut_file = tk.StringVar()
         self.chosen_existing_model = tk.StringVar()
         self.chosen_existing_model.set('choose model to apply')
@@ -73,6 +74,16 @@ class ConeDetectorGUI:
         im_button = tk.Button(self.frame, text="Choose image folder", command=get_im_folder)
         im_button.grid(row=0, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
+        # Choosing folder button
+        def get_target_folder():
+            options = dict(
+                title='Choose target folder',
+            )
+            self.chosen_target_folder.set(askdirectory(**options))
+
+        target_button = tk.Button(self.frame, text="Choose target folder", command=get_target_folder)
+        target_button.grid(row=2, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+
         # choosing csv file button
         def get_lut_file():
             options = dict(
@@ -85,17 +96,17 @@ class ConeDetectorGUI:
 
         # some more options
         check_bright = tk.Checkbutton(self.frame, text="Bright on left", variable=self.bright_or_dark)
-        check_bright.grid(row=2, column=0, sticky=tk.W)
+        check_bright.grid(row=3, column=0, sticky=tk.W)
 
         manual_anotate = tk.Checkbutton(self.frame, text="Manually annotate", variable=self.fully_or_semi_automatic)
-        manual_anotate.grid(row=3, column=0, sticky=tk.W)
+        manual_anotate.grid(row=4, column=0, sticky=tk.W)
 
         models = os.listdir(constants.MODEL_DIREC)
         option = tk.OptionMenu(self.frame, self.chosen_existing_model, *models)
-        option.grid(row=4, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        option.grid(row=5, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
         apply = tk.Button(self.frame, text="Run", command=self.run)
-        apply.grid(row=5, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
+        apply.grid(row=6, column=0, sticky=(tk.N, tk.S, tk.E, tk.W))
 
     def build_data_gui(self):
         self.mode = self.DATA
