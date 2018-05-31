@@ -97,7 +97,7 @@ class Annotator:
 
                 # if within 5 pixels of another point delete it
                 # this accounts for not having to click on the exact center
-                if dist[closest_row_index] < 5:
+                if dist[closest_row_index] < 10:
                     self.current_centroids = np.delete(self.current_centroids, [closest_row_index], axis=0)
 
         # add point
@@ -113,8 +113,11 @@ class Annotator:
 
         # saving old and new information to a list
         output = Output(output=self.raw_network_output[self.current_image_id])
-        centres_as_tuple = [(x[0, 0], x[0, 1]) for x in
-                            np.split(self.current_centroids, self.current_centroids.shape[0])]
+        if self.current_centroids.shape[0] == 0:
+            centres_as_tuple = []
+        else:
+            centres_as_tuple = [(x[0, 0], x[0, 1]) for x in
+                                np.split(self.current_centroids, self.current_centroids.shape[0])]
         output.set_actual_centers(centres_as_tuple)
         self.outputs_after_annotation.append(output)
 

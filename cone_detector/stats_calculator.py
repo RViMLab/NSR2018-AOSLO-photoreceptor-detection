@@ -47,7 +47,7 @@ class StatsCalculator:
         bounded = np.zeros(arr.shape[0], dtype=np.bool)
         try:
             vor = Voronoi(arr)
-        except QhullError:
+        except (QhullError, ValueError):
             return {
                 'bound': 'notEnoughPoints',
                 'vorVolume': 'notEnoughPoints',
@@ -86,7 +86,7 @@ class StatsCalculator:
 
         try:
             dt = Delaunay(arr)
-        except QhullError:
+        except (QhullError, ValueError):
             return {'icMax': 'notEnoughPoints', 'icMin': 'notEnoughPoints', 'icMean': 'notEnoughPoints'}
 
         indPtr, indices = dt.vertex_neighbor_vertices
@@ -156,7 +156,10 @@ class StatsCalculator:
             if centers[key] is None:
                 continue
             else:
-                arr = np.stack(centers[key])
+                if centers[key]:
+                    arr = np.stack(centers[key])
+                else:
+                    arr = np.empty(shape=[0, 2])
 
             # calculate stats
             density_locations = self.density_map(arr)
