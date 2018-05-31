@@ -34,25 +34,12 @@ class Annotator:
         ax1 = self.fig.add_subplot(1, 1, 1)
         self.ax1 = ax1
 
-        # add or remove radio button
-        self.ADD = 0
-        self.REMOVE = 1
-        rax = plt.axes([0.05, 0.7, 0.15, 0.15], )
-        self.ADD_TEXT = 'Add cone'
-        self.REMOVE_TEXT = 'Remove cone'
-        self.AR_DICT = {self.ADD_TEXT: self.ADD, self.REMOVE_TEXT: self.REMOVE}
-        self.add_or_remove = self.ADD
-        radio = RadioButtons(
-            rax,
-            (self.ADD_TEXT, self.REMOVE_TEXT))
-        radio.on_clicked(self.radio_callback)
-
         # click callback
         self.fig.canvas.mpl_connect('button_press_event', self.onclick)
 
         # save button
         bax = plt.axes([0.05, 0.4, 0.15, 0.15], )
-        save_button = Button(bax, 'Save and next')
+        save_button = Button(bax, 'Next')
         save_button.on_clicked(self.save)
 
         # collect image data and present
@@ -84,22 +71,21 @@ class Annotator:
         self.ax1.scatter(x=self.current_centroids[:, 1], y=self.current_centroids[:, 0], s=20, c='r')
         number_cones = self.current_centroids.shape[0]
         cone_string = 'Cones: ' + str(number_cones)
-        posx, posy = -50, 0
+        posx, posy = -70, 0
         self.ax1.text(posx, posy, cone_string, fontsize=20)
+        self.ax1.set_title('left click to add, right to delete', fontsize=11)
         self.ax1.figure.canvas.draw()
-
-    def radio_callback(self, label):
-        """changes state of annottor to add or remove a point"""
-        self.add_or_remove = self.AR_DICT[label]
 
     def onclick(self, event):
         """clicking adds or removes a point depending on annotator state"""
 
         # if not in figure
         if event.inaxes != self.ax1.axes: return
+        LEFT_MOUSE = 1
+        RIGHT_MOUSE = 3
 
         # delete point
-        if self.add_or_remove == self.REMOVE:
+        if event.button == RIGHT_MOUSE:
 
             # get point clicked and look for closest centroid to it
             point = np.array([event.ydata, event.xdata])
@@ -115,7 +101,7 @@ class Annotator:
                     self.current_centroids = np.delete(self.current_centroids, [closest_row_index], axis=0)
 
         # add point
-        elif self.add_or_remove == self.ADD:
+        elif event.button == LEFT_MOUSE:
             point = np.array([[event.ydata, event.xdata]])
             self.current_centroids = np.concatenate([self.current_centroids, point])
 
