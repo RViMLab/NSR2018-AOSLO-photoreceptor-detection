@@ -70,10 +70,11 @@ class StatsCalculator:
             sides.append(len(region))
             volumes.append(volArea(vor, idx))
 
-
         if volumes:
             volume_array = np.array(volumes)
-            volume = np.mean(volume_array * self.um_per_pix) / np.std(volume_array * self.um_per_pix)
+            std = np.std(volume_array * self.um_per_pix)
+            std = std if std != 0. else 1.
+            volume = np.mean(volume_array * self.um_per_pix) / std
             vor_density = number_bounded / np.sum(volume * self.um_per_pix)
         else:
             volume = 0.
@@ -81,7 +82,9 @@ class StatsCalculator:
         if sides:
             sides_array = np.array(sides) + 1
             num_sixes = (sides_array == 6).sum()
-            sides = np.mean(sides_array) / np.std(sides_array)
+            std = np.std(sides_array)
+            std = std if std != 0. else 1.
+            sides = np.mean(sides_array) / std
             six_sides = (float(num_sixes) / sides_array.shape[0]) * 100.
         else:
             six_sides = 0.
