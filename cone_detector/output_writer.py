@@ -115,7 +115,7 @@ class OutputWriter:
         OutputWriter.save_figure(output.image, self.alg_figure_folder, output.name, output.estimated_centers)
         OutputWriter.center_to_csv(output.estimated_centers, output.name, self.alg_folder)
         if self.has_been_corrected():
-            OutputWriter.save_figure(output.image, self.corrected_figure_folder, output.name, output.estimated_centers)
+            OutputWriter.save_figure(output.image, self.corrected_figure_folder, output.name, output.actual_centers)
             OutputWriter.center_to_csv(output.actual_centers, output.name, self.corrected_folder)
 
     def save_stats(self, output):
