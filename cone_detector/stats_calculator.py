@@ -57,7 +57,6 @@ class StatsCalculator:
 
         point_region = vor.point_region
         number_bounded = 0.
-        number_six_sided = 0.
         volumes = []
         sides = []
         for idx, region in enumerate(vor.regions):
@@ -71,14 +70,23 @@ class StatsCalculator:
             sides.append(len(region))
             volumes.append(volArea(vor, idx))
 
-        volume_array = np.array(volumes)
-        sides_array = np.array(sides) + 1
-        num_sixes = (sides_array == 6).sum()
 
-        volume = np.mean(volume_array * self.um_per_pix) / np.std(volume_array * self.um_per_pix)
-        sides = np.mean(sides_array) / np.std(sides_array)
-        six_sides = (float(num_sixes) / sides_array.shape[0]) * 100.
-        vor_density = number_bounded / np.sum(volume * self.um_per_pix)
+        if volumes:
+            volume_array = np.array(volumes)
+            volume = np.mean(volume_array * self.um_per_pix) / np.std(volume_array * self.um_per_pix)
+            vor_density = number_bounded / np.sum(volume * self.um_per_pix)
+        else:
+            volume = 0.
+            vor_density = 0.
+        if sides:
+            sides_array = np.array(sides) + 1
+            num_sixes = (sides_array == 6).sum()
+            sides = np.mean(sides_array) / np.std(sides_array)
+            six_sides = (float(num_sixes) / sides_array.shape[0]) * 100.
+        else:
+            six_sides = 0.
+            sides = 0.
+
         return {'bound': bounded, 'vorVolume': volume, 'vorSides': sides, 'vorSix': six_sides,
                 'vorDensity': vor_density}
 
