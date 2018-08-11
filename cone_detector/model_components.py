@@ -35,6 +35,7 @@ def output(image, labels, optimize, loss, out, reshaped_labels):
     if optimize:
         optimizer = tf.train.RMSPropOptimizer(1e-3)
         gradients, variables = zip(*optimizer.compute_gradients(loss))
+        gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
 
         # occasionally gradients would explode
         # tells us if there are NaN values in any tensors
@@ -119,6 +120,7 @@ def conv_layer(inp):
 
     """
     batch, height, width, channels = inp.get_shape().as_list()
+
     # filters
     filter_size = 3
     initial_range = 0.1

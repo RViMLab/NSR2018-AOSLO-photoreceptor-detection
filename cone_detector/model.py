@@ -73,7 +73,7 @@ def trainable_model(inputs, segmentation, bright_dark):
     # weighted loss using ratio
     loss, reshaped_labels = get_dice_loss(logits, segmentation)
 
-    optimizer = tf.train.RMSPropOptimizer(1e-3)
+    optimizer = tf.train.RMSPropOptimizer(0.01)
     gradients, variables = zip(*optimizer.compute_gradients(loss))
 
     # occasionally gradients would explode

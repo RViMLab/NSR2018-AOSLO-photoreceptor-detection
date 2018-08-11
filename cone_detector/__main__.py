@@ -15,8 +15,7 @@ from .output_writer import OutputWriter
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
-def run_through_graph(image_folder, sze, bright_dark, model_name):
-    outputs = []
+def run_through_graph(image_folder, sze, bright_dark, model_name, outputs):
     detector = cone_detector.ConeDetector(sze, bright_dark, model_name)
     for image_name in image_folder.images_by_size[sze]:
         raw_image = image_folder.grayscale_image(image_name)
@@ -26,7 +25,6 @@ def run_through_graph(image_folder, sze, bright_dark, model_name):
         o.set_estimated_centres(centers)
         outputs.append(o)
     detector.close_session()
-    return outputs
 
 
 def run_through_nothing(image_folder, sze, outputs):
@@ -37,7 +35,6 @@ def run_through_nothing(image_folder, sze, outputs):
         o = output.Output(image=cropped, name=image_name)
         o.set_estimated_centres([])
         outputs.append(o)
-    return outputs
 
 
 def locate_cones_with_model(data_folder, bright_dark, model_name):
@@ -45,10 +42,9 @@ def locate_cones_with_model(data_folder, bright_dark, model_name):
     outputs = []
     for size in image_folder.images_by_size.keys():
         if model_name == constants.NO_MODEL:
-            outputs += run_through_nothing(image_folder, size, outputs)
+            run_through_nothing(image_folder, size, outputs)
         else:
-            outputs += run_through_graph(image_folder, size, bright_dark, model_name)
-
+            run_through_graph(image_folder, size, bright_dark, model_name, outputs)
     return outputs
 
 
@@ -112,7 +108,8 @@ def data(data_folder, brightDark, data_name, model_name):
 
 def train_new(train_data_name, val_data_name, model_name, bright_dark):
     trainer = DetectorTrainer(model_name, train_data_name, val_data_name, bright_dark)
-    trainer.train_network()
+    trainer.train_network(model_name)
+    trainer.train_hyper_params()
 
 
 def main():

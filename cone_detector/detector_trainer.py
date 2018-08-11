@@ -25,7 +25,7 @@ class DetectorTrainer:
         self.bright_dark = bright_dark
         self.batch_size = batch_size
         self.burn_in = 5
-        self.kill_after_stall = 20
+        self.kill_after_stall = 30
 
         self.graph = tf.Graph()
         self.sess = tf.Session(graph=self.graph)
@@ -106,7 +106,7 @@ class DetectorTrainer:
         image, segmentation, location, height, width = DetectorTrainer.to_tensors(serialized_example)
         image, segmentation = DetectorTrainer.pad(image, segmentation, height, width)
         image, segmentation = DetectorTrainer.random_crop(image, segmentation)
-        image = tf.cast(image, dtype=tf.float32)
+        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
 
         pro_image = image - tf.reduce_mean(image)
         one_hot_seg = tf.one_hot(
@@ -118,6 +118,8 @@ class DetectorTrainer:
         pro_image, one_hot_seg = DetectorTrainer.flip(pro_image, one_hot_seg)
         pro_image = tf.expand_dims(pro_image, axis=0)
 
+
+        # todo whats happening here with the zero?
         return pro_image[0, :, :, :], one_hot_seg
 
     def build_inputs(self, data_path):
@@ -183,7 +185,7 @@ class DetectorTrainer:
         if dice > best_dice:
             saver.save(self.sess, os.path.join(self.model_direc, 'model'))
             best_dice = dice
-        return best_dice
+        return best_dice, dice, cone_map
 
     def run_training_epoch(self, train_iterator, optimizer):
         self.sess.run(train_iterator.initializer)
@@ -193,16 +195,30 @@ class DetectorTrainer:
             except tf.errors.OutOfRangeError:
                 break
 
-    def train_network(self):
+    def train_network(self, model_name):
         train_iterator, init_op, saver, optimizer = self.build_optimizer()
         val_iterator, probs, val_segmentation = self.build_validator()
         self.sess.run(init_op)
         best_dice = 0.
         stalled = 0
-
+        step = 0
+        with self.graph.as_default():
+            log_location = os.path.join(constants.LOG_DIREC, model_name)
+            writer = tf.summary.FileWriter(log_location)
+            print('To monitor training run following in terminal:')
+            print('tensorboard --logdir {}'.format(log_location))
+            dice_place = tf.placeholder(tf.float32, shape=[])
+            image_place = tf.placeholder(tf.float32, shape=[4, constants.SIZE, constants.SIZE, 1])
+            dice_summary = tf.summary.scalar('Dice', dice_place)
+            image_summary = tf.summary.image('Cone Probabilities', image_place, max_outputs=self.batch_size)
         while True:
             self.run_training_epoch(train_iterator, optimizer)
-            new_best_dice = self.run_validation_epoch(probs, val_segmentation, val_iterator, best_dice, saver)
+            new_best_dice, dice, cone_map = self.run_validation_epoch(probs, val_segmentation, val_iterator, best_dice, saver)
+            cone_map = np.reshape(cone_map, [-1, constants.SIZE, constants.SIZE, 1])
+            dice_sum, image_sum = self.sess.run([dice_summary, image_summary], feed_dict={dice_place:dice, image_place:cone_map})
+            writer.add_summary(dice_sum, step)
+            writer.add_summary(image_sum, step)
+            step += 1
             if new_best_dice == best_dice:
                 stalled += 1
             else:
@@ -222,7 +238,11 @@ class DetectorTrainer:
     @staticmethod
     def hyper_pre_process(serialized_example):
         image, _, location, height, width = DetectorTrainer.to_tensors(serialized_example)
-        image = tf.cast(image, dtype=tf.float32)
+        image.set_shape([constants.SIZE, constants.SIZE])
+        image = tf.expand_dims(image, 2)
+        height = tf.cast(height, tf.int32)
+        width = tf.cast(width, tf.int32)
+        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
         pro_image = image - tf.reduce_mean(image)
         size = constants.SIZE
 
@@ -231,8 +251,7 @@ class DetectorTrainer:
 
         pro_image = pro_image[starty:starty + size, startx:startx + size]
         location = location[starty:starty + size, startx:startx + size]
-        pro_image = tf.expand_dims(pro_image, axis=0)
-
+        pro_image.set_shape([constants.SIZE, constants.SIZE, 1])
         return pro_image, location
 
     def build_hyper_param_inputs(self):
@@ -240,16 +259,18 @@ class DetectorTrainer:
             dataset = tf.data.TFRecordDataset(self.val_data_path)
             dataset = dataset.map(DetectorTrainer.hyper_pre_process)
             dataset = dataset.shuffle(buffer_size=32)
-            dataset = dataset.batch(self.batch_size)
+            dataset = dataset.batch(1)
             iterator = dataset.make_initializable_iterator()
             image, location = iterator.get_next()
+
         return image, location, iterator
 
     def build_hyper_graph(self):
         with self.graph.as_default():
+            # todo how does it get extra dimension?
             image, location, iterator = self.build_hyper_param_inputs()
             probs = model.forward_network_softmax(image, self.bright_dark)
-            probs = tf.reshape(probs, [constants.SIZE, constants.SIZE])
+            probs = tf.reshape(probs, [-1, constants.SIZE, constants.SIZE])
             init_op = tf.global_variables_initializer()
             saver = tf.train.Saver()
             self.sess.run(init_op)
@@ -264,7 +285,7 @@ class DetectorTrainer:
             try:
                 cone_map, location_array = self.sess.run([probs, location])
                 location_array = np.transpose(np.nonzero(location_array > 0))
-                centers_and_maps.append((cone_map, location_array))
+                centers_and_maps.append((np.squeeze(cone_map), np.squeeze(location_array)))
             except tf.errors.OutOfRangeError:
                 break
         return centers_and_maps
@@ -278,7 +299,7 @@ class DetectorTrainer:
             for sigma in np.linspace(0., 4, 30):
                 for prob, actual_centers in centers_and_maps:
                     centers = PostProcessor.get_centers_static(prob, sigma, thresh)
-                    dice = DetectorTrainer.get_center_dice(centers, actual_centers)
+                    dice = DetectorTrainer.get_center_dice(centers, actual_centers[:,1:])
                     if dice > best_dice:
                         best_dice = dice
                         best_thresh = thresh

@@ -42,7 +42,9 @@ class PostProcessor:
 
     @staticmethod
     def im_extended_max(I):
+        import matplotlib.pyplot as plt
         max_vals = filters.maximum_filter(I, size=(7, 7))
+
         mask = (max_vals - I) <= 0
         return mask
 

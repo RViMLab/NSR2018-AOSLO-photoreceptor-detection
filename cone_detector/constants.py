@@ -4,6 +4,7 @@ import os
 PACKAGE_DIREC = os.path.dirname(os.path.realpath(__file__))
 MODEL_DIREC = os.path.join(PACKAGE_DIREC, 'models')
 DATA_DIREC = os.path.join(PACKAGE_DIREC, 'datasets')
+LOG_DIREC = os.path.join(PACKAGE_DIREC, 'training_logs')
 
 # model names
 NO_MODEL = 'None'
