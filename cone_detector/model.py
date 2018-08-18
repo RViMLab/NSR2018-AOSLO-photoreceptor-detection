@@ -73,8 +73,9 @@ def trainable_model(inputs, segmentation, bright_dark):
     # weighted loss using ratio
     loss, reshaped_labels = get_dice_loss(logits, segmentation)
 
-    optimizer = tf.train.RMSPropOptimizer(0.01)
+    optimizer = tf.train.RMSPropOptimizer(1e-3)
     gradients, variables = zip(*optimizer.compute_gradients(loss))
+    gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
 
     # occasionally gradients would explode
     # tells us if there are NaN values in any tensors

@@ -12,8 +12,9 @@ from .process_network_out import PostProcessor
 
 class DetectorTrainer:
 
-    def __init__(self, model_name, train_data_name, val_data_name, bright_dark, batch_size=8):
+    def __init__(self, model_name, train_data_name, val_data_name, bright_dark, batch_size=4):
         self.model_name = model_name
+        self.step = 0
         self.model_direc = os.path.join(constants.MODEL_DIREC, model_name)
         self.model_path = os.path.join(self.model_direc, 'model')
         self.train_data_path = os.path.join(constants.DATA_DIREC, train_data_name, 'data.tfrecord')
@@ -170,14 +171,14 @@ class DetectorTrainer:
             iterator, val_image, val_segmentation = self.build_inputs(self.val_data_path)
             tf.get_variable_scope().reuse_variables()
             probs = model.forward_network_softmax(val_image, self.bright_dark)
-        return iterator, probs, val_segmentation
+        return iterator, probs, val_segmentation, val_image
 
-    def run_validation_epoch(self, probs, val_segmentation, val_iterator, best_dice, saver):
+    def run_validation_epoch(self, probs, val_segmentation, val_iterator, best_dice, saver, d_sum, i_sum, writer, d_place):
         self.sess.run(val_iterator.initializer)
         tpfpfn = np.zeros([3])
         while True:
             try:
-                cone_map, actual = self.sess.run([probs, val_segmentation])
+                cone_map, actual, image_sum = self.sess.run([probs, val_segmentation, i_sum])
                 tpfpfn += DetectorTrainer.dice_info(cone_map, actual)
             except tf.errors.OutOfRangeError:
                 break
@@ -185,6 +186,10 @@ class DetectorTrainer:
         if dice > best_dice:
             saver.save(self.sess, os.path.join(self.model_direc, 'model'))
             best_dice = dice
+        dice_sum = self.sess.run(d_sum, {d_place:dice})
+        writer.add_summary(image_sum, self.step)
+        writer.add_summary(dice_sum, self.step)
+
         return best_dice, dice, cone_map
 
     def run_training_epoch(self, train_iterator, optimizer):
@@ -197,28 +202,38 @@ class DetectorTrainer:
 
     def train_network(self, model_name):
         train_iterator, init_op, saver, optimizer = self.build_optimizer()
-        val_iterator, probs, val_segmentation = self.build_validator()
+        val_iterator, probs, val_segmentation, val_image = self.build_validator()
         self.sess.run(init_op)
         best_dice = 0.
         stalled = 0
-        step = 0
+        self.step = 0
         with self.graph.as_default():
             log_location = os.path.join(constants.LOG_DIREC, model_name)
             writer = tf.summary.FileWriter(log_location)
+
             print('To monitor training run following in terminal:')
             print('tensorboard --logdir {}'.format(log_location))
             dice_place = tf.placeholder(tf.float32, shape=[])
-            image_place = tf.placeholder(tf.float32, shape=[4, constants.SIZE, constants.SIZE, 1])
+            probs = tf.reshape(probs, [-1, constants.SIZE, constants.SIZE, 1])
             dice_summary = tf.summary.scalar('Dice', dice_place)
-            image_summary = tf.summary.image('Cone Probabilities', image_place, max_outputs=self.batch_size)
+            cone_summary = tf.summary.image('Cone Probabilities', probs, max_outputs=self.batch_size)
+            image_summary = tf.summary.image('Image', val_image, max_outputs=self.batch_size)
+            seg_summary = tf.summary.image('Segmentation', val_segmentation[:,:,:,:1], max_outputs=self.batch_size)
+            image_summary = tf.summary.merge([image_summary, seg_summary, cone_summary])
         while True:
             self.run_training_epoch(train_iterator, optimizer)
-            new_best_dice, dice, cone_map = self.run_validation_epoch(probs, val_segmentation, val_iterator, best_dice, saver)
-            cone_map = np.reshape(cone_map, [-1, constants.SIZE, constants.SIZE, 1])
-            dice_sum, image_sum = self.sess.run([dice_summary, image_summary], feed_dict={dice_place:dice, image_place:cone_map})
-            writer.add_summary(dice_sum, step)
-            writer.add_summary(image_sum, step)
-            step += 1
+            new_best_dice, dice, cone_map = self.run_validation_epoch(
+                probs,
+                val_segmentation,
+                val_iterator,
+                best_dice,
+                saver,
+                dice_summary,
+                image_summary,
+                writer,
+                dice_place)
+
+            self.step += 1
             if new_best_dice == best_dice:
                 stalled += 1
             else:
