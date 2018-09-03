@@ -373,4 +373,4 @@ class DetectorTrainer:
     def train_hyper_params(self):
         centers_and_probs = self.collect_centers_and_prob_maps()
         thresh, sigma = self.calculate_best_from_list(centers_and_probs)
-        self.write_hyper(thresh, sigma)
+        self.write_hyper(sigma, thresh)
