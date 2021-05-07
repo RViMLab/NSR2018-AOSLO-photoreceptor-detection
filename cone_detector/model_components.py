@@ -1,5 +1,7 @@
 import numpy as np
-import tensorflow as tf
+
+import tensorflow.compat.v1 as tf
+
 from tensorflow import TensorArray
 
 
@@ -99,7 +101,7 @@ def get_dice_loss(out, labels):
 
 def input_labels(height, width):
     """Returns two placeholders for image, and label"""
-    images = tf.placeholder(dtype=tf.float32, shape=[None, height, width, 1])
+    images = s.placeholder(dtype=tf.float32, shape=[None, height, width, 1])
     labels = tf.placeholder(dtype=tf.float32, shape=[None, height, width, 2])
 
     return images, labels

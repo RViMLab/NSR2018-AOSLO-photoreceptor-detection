@@ -5,7 +5,7 @@ from . import constants
 
 
 try:
-    import tensorflow
+    import tensorflow.compat.v1 as tf
 except ImportError:
     print('You must install tensorflow:\n https://www.tensorflow.org/install/')
 
